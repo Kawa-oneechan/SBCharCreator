@@ -1,0 +1,8 @@
+﻿; First line found is the player folder.
+C:\Program Files (x86)\Steam\SteamApps\common\Starbound\player
+; Comments like this and blank lines are skipped.
+C:\Program Files (x86)\Steam\SteamApps\common\Starbound\assets\packed.pak
+C:\Program Files (x86)\Steam\SteamApps\common\Starbound\mods
+
+; I'm not sure if this'll work for you. The program does not sort by internal name yet, and file locking gets in the way.
+; C:\Program Files (x86)\Steam\SteamApps\workshop\content\211820

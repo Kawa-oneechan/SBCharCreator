@@ -1,0 +1,414 @@
+{
+	"__id" : "PlayerEntity",
+	"__version" : 30,
+	"__content" : {
+		//Ask what makes a good UUID. Does it matter what this value is as long as it's unique?
+		"uuid" : "4bc9b5640ed67e1b907f27c658ec9240",
+
+		//Can be done straight.
+		"aiState" : {
+			"availableMissions" : [],
+			"completedMissions" : []
+		},
+		"universeMap" : {},
+		"codexes" : {},
+		"companions" : {
+			"scriptStorage" : {},
+			"companions" : {}
+		},
+		"log" : {
+			"deathCount" : 0,
+			"radioMessages" : [],
+			"playTime" : 0,
+			"introComplete" : true, //the one exception.
+			"scannedObjects" : [],
+			"cinematics" : [],
+			"collections" : {} //new for v26
+		},
+		"movementController" : {
+			"crouching" : false,
+			"facingDirection" : "left",
+			"movingDirection" : "left",
+			"position" : [ 0, 0 ],
+			"rotation" : 0,
+			"velocity" : [ 0, 0 ]
+		},
+		"quests" : {
+			"quests" : {},
+			"currentQuest" : null
+		},
+		"team" : {
+			"type" : "friendly",
+			"team" : 0
+		},
+		"techController" : {
+			"techModules" : []
+		},
+		"techs" : {
+			"availableTechs" : [],
+			"enabledTechs" : [],
+			"equippedTechs" : {}
+		},
+		//Set this one from some other file?
+		"shipUpgrades" : {
+			"capabilities" : [],
+			"crewSize" : 0,
+			"fuelEfficiency" : 0.0,
+			"maxFuel" : 1000,
+			"shipLevel" : 0,
+			"shipSpeed" : 15.0
+		},
+
+		//Set to casual, survival, hardcore according.
+		"modeType" : "casual",
+
+		//Use a field for this?
+		"description" : "This guy seems to have nothing to say for himself.",
+
+		//Needs to be filled with player.config:defaultBlueprints and _.species:defaultBlueprints.
+		"blueprints" : {
+			"knownBlueprints" : [],
+			"newBlueprints" : []
+		},
+
+		//Fill in according to species, gender, and settings.
+		"identity" : {
+			"bodyDirectives" : "?replace;c7815b=b37c5d;d39c6c=d3a57c;ffc181=f9d3a9;ffe2c5=fff7ec?replace;951500=834a0c;be1b00=b47020;dc1f00=eaa245",
+			"color" : [ 51, 117, 237 ], //Beamaxe color
+			"emoteDirectives" : "?replace;c7815b=b37c5d;d39c6c=d3a57c;ffc181=f9d3a9;ffe2c5=fff7ec?replace;951500=834a0c;be1b00=b47020;dc1f00=eaa245",
+			"facialHairDirectives" : "",
+			"facialHairGroup" : "",
+			"facialHairType" : "",
+			"facialMaskDirectives" : "",
+			"facialMaskGroup" : "",
+			"facialMaskType" : "",
+			"gender" : "female",
+			"hairDirectives" : "?replace;735e3a=96201b;d9c189=e86d46;a38d59=d1422e?replace;951500=834a0c;be1b00=b47020;dc1f00=eaa245",
+			"hairGroup" : "hair",
+			"hairType" : "fem3",
+			"name" : "Lili",
+			"personalityArmIdle" : "idle.2",
+			"personalityArmOffset" : [ 0, 0 ],
+			"personalityHeadOffset" : [ -1, 0 ],
+			"personalityIdle" : "idle.2",
+			"species" : "human"
+		},
+
+		//Mostly blank, except for chestSlot, legsSlot.
+		"inventory" : {
+			"headCosmeticSlot" : null,
+			"backCosmeticSlot" : null,
+			"chestCosmeticSlot" : null,
+			"legsCosmeticSlot" : null,
+			"headSlot" : null,
+			"backSlot" : null,
+			"chestSlot" : {
+				"id" : "Item",
+				"version" : 7,
+				"content" : {
+					"count" : 1,
+					"name" : "workoutchest",
+					"parameters" : {
+						"colorIndex" : 2384736492 //actually just 0-11.
+					}
+				}
+			},
+			"legsSlot" : {
+				"id" : "Item",
+				"version" : 7,
+				"content" : {
+					"count" : 1,
+					"name" : "workoutlegs",
+					"parameters" : {
+						"colorIndex" : 3944162471
+					}
+				}
+			},
+			//Mind the amounts.
+			"itemBags" : {
+				"mainBag" : [ //40
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				],
+				"materialBag" : [ //40
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				],
+				"objectBag" : [ //40
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				],
+				"reagentBag" : [ //40
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				],
+				"foodBag" : [ //40
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				]
+			},
+			"swapSlot" : null,
+			"trashSlot" : null,
+			"currencies" : {
+				"money" : 0,
+				"essence" : 0
+			},
+			"customBarGroup" : 0,
+			"customBar" : [ //2 * 6
+				[
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ]
+				],
+				[
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ],
+					[ null, null ]
+				]
+			],
+			"selectedActionBar" : null,
+			"beamAxe" : null,
+			"wireTool" : null,
+			"paintTool" : null,
+			"inspectionTool" : null
+		},
+
+		"statusController" : {
+			//Copy from player.config:statusControllerSettings/statusProperties.
+			"statusProperties" : {
+				"breathHealthPenaltyPercentageRate" : 0.05,
+				"damageFlashOffDirectives" : "multiply=ffffff00=0.85",
+				"damageFlashOnDirectives" : "",
+				"hitInvulnerabilityFlash" : 0.15,
+				"hitInvulnerabilityThreshold" : 0.1,
+				"hitInvulnerabilityTime" : 1,
+				"mouthPosition" : [ 0, 0.75 ],
+				"shieldHitInvulnerabilityTime" : 1,
+				"targetMaterialKind" : "organic"
+			},
+			//The rest can be done straight I guess?
+			"resourcesLocked" : {
+				"breath" : false,
+				"damageAbsorption" : false,
+				"energy" : false,
+				"energyRegenBlock" : false,
+				"food" : false,
+				"health" : false,
+				"perfectBlock" : false,
+				"perfectBlockLimit" : false,
+				"shieldStamina" : false,
+				"shieldStaminaRegenBlock" : false
+			},
+			"persistentEffectCategories" : {},
+			"ephemeralEffects" : [],
+			"resourceValues" : {
+				"breath" : 100,
+				"damageAbsorption" : 0,
+				"energy" : 100,
+				"energyRegenBlock" : 0,
+				"food" : 70,
+				"health" : 100,
+				"perfectBlock" : 0,
+				"perfectBlockLimit" : 1,
+				"shieldStamina" : 1,
+				"shieldStaminaRegenBlock" : 0
+			}
+		}
+	}
+}

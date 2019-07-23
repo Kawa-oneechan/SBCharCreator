@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E06740BD-F3A3-4005-977A-BE8525B877AF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SBCharCreator</RootNamespace>
+    <AssemblyName>SBCharCreator</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets.cs" />
+    <Compile Include="Clothing.cs" />
+    <Compile Include="CharCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CharCreator.Designer.cs">
+      <DependentUpon>CharCreator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Frames.cs" />
+    <Compile Include="Humanoid.cs" />
+    <Compile Include="Json\Kawa.Json.cs" />
+    <Compile Include="Json\Kawa.Json.Patch.cs" />
+    <Compile Include="Json\Kawa.Json.Path.cs" />
+    <Compile Include="Json\Kawa.Json.Starbound.cs" />
+    <Compile Include="NameGen.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Species.cs" />
+    <EmbeddedResource Include="CharCreator.resx">
+      <DependentUpon>CharCreator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Resources\player.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dice.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\app.ico" />
+    <None Include="Resources\errorFallback.png" />
+    <None Include="Resources\OpenFile.png" />
+    <None Include="Resources\saveHS.png" />
+    <None Include="Resources\openHS.png" />
+    <None Include="Resources\Image1.png" />
+    <None Include="Resources\Image2.png" />
+    <None Include="Resources\InsertPictureHS.png" />
+    <None Include="Resources\EditTask.png" />
+    <None Include="Resources\ChooseColor.png" />
+    <None Include="Resources\DeleteHS.png" />
+    <None Include="Resources\loadinglogo.png" />
+    <Content Include="sources.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
