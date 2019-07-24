@@ -22,7 +22,9 @@ namespace Kawa.Json.Patch
 				{
 					var index = dummy;
 					if (!(node is List<object>))
+					{
 						throw new JsonException("Invalid patch: tried to navigate into an array, but it's not an array.");
+					}
 					var n = node as List<object>;
 					if (index < n.Count)
 					{
@@ -78,9 +80,13 @@ namespace Kawa.Json.Patch
 						}
 					}
 					if (j < path.Length - 1)
+					{
 						node = n[part];
+					}
 					else
+					{
 						lastKey = part;
+					}
 				}
 			}
 		}
@@ -135,7 +141,9 @@ namespace Kawa.Json.Patch
 				if (operation == "add" || operation == "replace")
 				{
 					if (node is JsonObj)
+					{
 						((JsonObj)node)[lastKey] = value;
+					}
 					else if (node is List<object>)
 					{
 						if (operation == "add")

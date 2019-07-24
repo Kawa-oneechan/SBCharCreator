@@ -81,18 +81,28 @@ namespace SBCharCreator
 					for (int t = 0; t < tokens.Length; t++)
 					{
 						if (tokens[t] == "")
+						{
 							continue;
+						}
 						if (tokens[t].Length == 1)
+						{
 							tokens[t] = tokens[t].ToUpperInvariant();
+						}
 						else
+						{
 							tokens[t] = tokens[t].Substring(0, 1) + tokens[t].Substring(1).ToLowerInvariant();
+						}
 						if (ret != "")
+						{
 							ret += " ";
+						}
 						ret += tokens[t];
 					}
 				}
 				else
+				{
 					ret = ret.Substring(0, 1) + ret.Substring(1).ToLowerInvariant();
+				}
 			}
 			while (ret.Length < minLength);
 			return ret;
@@ -134,7 +144,7 @@ namespace SBCharCreator
 				else if (mode == "markov")
 				{
 					var name = Markov((JsonObj)Assets.GetJson("/names/" + (string)((JsonObj)part[0])["source"] + ".namesource"));
-					return TitleCase(name.ToString(), (JsonObj)part[0]);
+					return TitleCase(name, (JsonObj)part[0]);
 				}
 			}
 			else if (part is List<object> || part[0] is string)

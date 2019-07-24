@@ -53,14 +53,21 @@ namespace Kawa.Json
 					ret[i] = @something();
 				}
 
-				var allAreNull = ret.All(i => i ==null);
+				var allAreNull = ret.All(i => i == null);
 				if (!allAreNull)
 				{
 					var allAreSameType = true;
 					foreach (var i in ret)
 					{
-						if (i == null) continue;
-						if (!(i is string)) { allAreSameType = false; break; }
+						if (i == null)
+						{
+							continue;
+						}
+						if (!(i is string))
+						{
+							allAreSameType = false;
+							break;
+						}
 					}
 					if (allAreSameType)
 					{
@@ -383,7 +390,7 @@ namespace Kawa.Json
 			for (var i = 0; i < 10; ++i)
 			{
 				var oct = stream.ReadByte();
-				x = (ulong)(x << 7) | (ulong)((ulong)oct & 127);
+				x = (x << 7) | ((ulong)oct & 127);
 				if ((oct & 128) == 0)
 				{
 					return x;

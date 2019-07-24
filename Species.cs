@@ -181,7 +181,9 @@ namespace SBCharCreator
 			foreach (var h in hair)
 			{
 				if (string.IsNullOrWhiteSpace(h))
+				{
 					continue;
+				}
 				this.FacialHair.Add(h, Assets.GetImage(hairPath + h + ".png"));
 				this.FacialHairFrames.Add(h, Assets.GetFrames(hairPath + h + ".frames"));
 			}

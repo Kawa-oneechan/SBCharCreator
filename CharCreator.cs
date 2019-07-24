@@ -103,7 +103,10 @@ namespace SBCharCreator
 					return;
 				}
 
-				if (stopLoadingDipshit) return;
+				if (stopLoadingDipshit)
+				{
+					return;
+				}
 
 				Humanoid.Load((JsonObj)Assets.GetJson("/humanoid.config"));
 				var charCreator = (JsonObj)Assets.GetJson("/interface/windowconfig/charcreation.config");
@@ -499,62 +502,40 @@ namespace SBCharCreator
 			identityPanel.Show();
 		}
 
-		private void Draw(Bitmap canvas, Bitmap sheet, int cellX, int cellY, int cellW, int cellH, JsonObj palette1 = null, JsonObj palette2 = null, JsonObj palette3 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
+		private static void Draw(Bitmap canvas, Bitmap sheet, int cellX, int cellY, int cellW, int cellH, JsonObj palette1 = null, JsonObj palette2 = null, JsonObj palette3 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
 		{
 			var pal = new Dictionary<Color, Color>();
-			var pal2 = new Dictionary<Color, Color>();
-			var black = Color.Black;
-			var trans = Color.Transparent;
 			var mask = headForMask == null ? null : headForMask.Mask;
 
-			if (palette1 != null)
-				foreach (var pair in palette1)
+			foreach (var palette in new[] { palette1, palette2, palette3 })
+			{
+				if (palette != null)
 				{
-					var cFrom = pair.Key;
-					var cTo = (string)pair.Value;
-					if (cFrom.Length == 8) //RGBA
-						cFrom = cFrom.Substring(6, 2) + cFrom.Substring(0, 6); //switch to ARGB
-					else //RGB
-						cFrom = "FF" + cFrom; //convert to ARGB
-					if (cTo.Length == 8)
-						cTo = cTo.Substring(6, 2) + cTo.Substring(0, 6);
-					else
-						cTo = "FF" + cTo;
-					var iTo = Color.FromArgb(int.Parse(cFrom, NumberStyles.HexNumber));
-					pal[iTo] = Color.FromArgb(int.Parse(cTo, NumberStyles.HexNumber));
+					foreach (var pair in palette)
+					{
+						var cFrom = pair.Key;
+						var cTo = (string)pair.Value;
+						if (cFrom.Length == 8) //RGBA
+						{
+							cFrom = cFrom.Substring(6, 2) + cFrom.Substring(0, 6); //switch to ARGB
+						}
+						else //RGB
+						{
+							cFrom = "FF" + cFrom; //convert to ARGB
+						}
+						if (cTo.Length == 8)
+						{
+							cTo = cTo.Substring(6, 2) + cTo.Substring(0, 6);
+						}
+						else
+						{
+							cTo = "FF" + cTo;
+						}
+						var iTo = Color.FromArgb(int.Parse(cFrom, NumberStyles.HexNumber));
+						pal[iTo] = Color.FromArgb(int.Parse(cTo, NumberStyles.HexNumber));
+					}
 				}
-			if (palette2 != null)
-				foreach (var pair in palette2)
-				{
-					var cFrom = pair.Key;
-					var cTo = (string)pair.Value;
-					if (cFrom.Length == 8)
-						cFrom = cFrom.Substring(6, 2) + cFrom.Substring(0, 6);
-					else
-						cFrom = "FF" + cFrom;
-					if (cTo.Length == 8)
-						cTo = cTo.Substring(6, 2) + cTo.Substring(0, 6);
-					else
-						cTo = "FF" + cTo;
-					var iTo = Color.FromArgb(int.Parse(cFrom, NumberStyles.HexNumber));
-					pal[iTo] = Color.FromArgb(int.Parse(cTo, NumberStyles.HexNumber));
-				}
-			if (palette3 != null)
-				foreach (var pair in palette3)
-				{
-					var cFrom = pair.Key;
-					var cTo = (string)pair.Value;
-					if (cFrom.Length == 8)
-						cFrom = cFrom.Substring(6, 2) + cFrom.Substring(0, 6);
-					else
-						cFrom = "FF" + cFrom;
-					if (cTo.Length == 8)
-						cTo = cTo.Substring(6, 2) + cTo.Substring(0, 6);
-					else
-						cTo = "FF" + cTo;
-					var iTo = Color.FromArgb(int.Parse(cFrom, NumberStyles.HexNumber));
-					pal[iTo] = Color.FromArgb(int.Parse(cTo, NumberStyles.HexNumber));
-				}
+			}
 
 			var key = sheet.GetPixel(0, 0);
 			for (var y = 0; y < cellH; y++)
@@ -562,14 +543,22 @@ namespace SBCharCreator
 				for (var x = 0; x < cellW; x++)
 				{
 					if (x + shiftX < 0 || y + shiftY < 0)
-						continue; 
-					if (headForMask != null && mask.GetPixel(x, y).A == 0)
+					{
 						continue;
+					}
+					if (headForMask != null && mask.GetPixel(x, y).A == 0)
+					{
+						continue;
+					}
 					var c = sheet.GetPixel(cellX + x, cellY + y);
 					if (c.A == 0 || c.Equals(key))
+					{
 						continue;
+					}
 					if (pal.ContainsKey(c))
+					{
 						c = pal[c];
+					}
 					if (c.A < 255)
 					{
 						var a = c.A / 255f;
@@ -587,12 +576,12 @@ namespace SBCharCreator
 			}
 		}
 
-		private void Draw(Bitmap canvas, Bitmap sheet, Frames frames, string name, JsonObj palette1 = null, JsonObj palette2 = null, JsonObj palette3 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
+		private static void Draw(Bitmap canvas, Bitmap sheet, Frames frames, string name, JsonObj palette1 = null, JsonObj palette2 = null, JsonObj palette3 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
 		{
 			var frame = frames.Names[name];
 			Draw(canvas, sheet, frame[0], frame[1], frame[2], frame[3], palette1, palette2, palette3, shiftX, shiftY, headForMask);
 		}
-		private void Draw(Bitmap canvas, Bitmap sheet, Frames frames, string name, JsonObj palette1 = null, JsonObj palette2 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
+		private static void Draw(Bitmap canvas, Bitmap sheet, Frames frames, string name, JsonObj palette1 = null, JsonObj palette2 = null, int shiftX = 0, int shiftY = 0, Clothing headForMask = null)
 		{
 			var frame = frames.Names[name];
 			Draw(canvas, sheet, frame[0], frame[1], frame[2], frame[3], palette1, palette2, null, shiftX, shiftY, headForMask);
@@ -610,9 +599,13 @@ namespace SBCharCreator
 			using (var gfx = Graphics.FromImage(canvas))
 			{
 				if (toExport)
+				{
 					gfx.Clear(Color.Transparent);
+				}
 				else if (previewOnMagentaToolStripButton.Checked)
+				{
 					gfx.Clear(Color.Magenta);
+				}
 				else
 				{
 					gfx.FillRectangle(new LinearGradientBrush(new Point(0, 0), new Point(43, 43), Color.Gray, Color.Black), 0, 0, 43, 43);
@@ -631,7 +624,9 @@ namespace SBCharCreator
 			{
 				chest.Finish();
 				if (chestColorComboBox.SelectedIndex >= chest.ColorOptions.Length)
+				{
 					chestColorComboBox.SelectedIndex = 0;
+				}
 				chestColor = chest.ColorOptions[chestColorComboBox.SelectedIndex];
 			}
 			itemName = (string)(legsComboBox.SelectedItem ?? (string)legsComboBox.Items[0]);
@@ -640,7 +635,9 @@ namespace SBCharCreator
 			{
 				legs.Finish();
 				if (legsColorComboBox.SelectedIndex >= legs.ColorOptions.Length)
+				{
 					legsColorComboBox.SelectedIndex = 0;
+				}
 				legsColor = legs.ColorOptions[legsColorComboBox.SelectedIndex];
 			}
 
@@ -650,9 +647,9 @@ namespace SBCharCreator
 			var sleeveOffset = ((List<object>)personality[3]).Select(x => (int)((double)x)).ToArray();
 			var hairIndex = hairOptionComboBox.SelectedIndex;
 
-			Draw(canvas, species.Parts["backarm"], species.PartFrames["backarm"], (string)personality[1], species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], sleeveOffset[0], sleeveOffset[1]);
+			Draw(canvas, species.Parts["backarm"], species.PartFrames["backarm"], sleeveFrame, species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], sleeveOffset[0], sleeveOffset[1]);
 			if (previewWithClothesToolStripButton.Checked && chest != null)
-				Draw(canvas, chest.Parts[genderName + "backSleeve"], chest.PartFrames[genderName + "backSleeve"], (string)personality[1], chestColor, null, sleeveOffset[0], sleeveOffset[1]);
+				Draw(canvas, chest.Parts[genderName + "backSleeve"], chest.PartFrames[genderName + "backSleeve"], sleeveFrame, chestColor, null, sleeveOffset[0], sleeveOffset[1]);
 			Draw(canvas, species.Parts[genderName + "head"], species.PartFrames[genderName + "head"], "normal", species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], headOffset[0], headOffset[1]);
 			var hairColorA = species.BodyColor[bodyColor];
 			var hairColorB = species.BodyColor[bodyColor];
@@ -673,19 +670,29 @@ namespace SBCharCreator
 				Draw(canvas, facialMask.Value, gender.FacialMaskFrames[facialMask.Key], "normal", hairColorA, hairColorB, headOffset[0], headOffset[1]);
 			}
 
-			Draw(canvas, species.Parts[genderName + "body"], species.PartFrames[genderName + "body"], (string)personality[0], species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], 0, 0);
+			Draw(canvas, species.Parts[genderName + "body"], species.PartFrames[genderName + "body"], bodyFrame, species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], 0, 0);
 			if (previewWithClothesToolStripButton.Checked)
 			{
 				if (legs != null)
-					Draw(canvas, legs.Parts[genderName + "Frames"], legs.PartFrames[genderName + "Frames"], (string)personality[0], legsColor, null, 0, 0);
+				{
+					Draw(canvas, legs.Parts[genderName + "Frames"], legs.PartFrames[genderName + "Frames"], bodyFrame, legsColor, null, 0, 0);
+				}
 				if (chest != null)
-					Draw(canvas, chest.Parts[genderName + "body"], chest.PartFrames[genderName + "body"], (string)personality[0], chestColor, null, 0, 0);
+				{
+					Draw(canvas, chest.Parts[genderName + "body"], chest.PartFrames[genderName + "body"], bodyFrame, chestColor, null, 0, 0);
+				}
 			}
-			Draw(canvas, species.Parts["frontarm"], species.PartFrames["frontarm"], (string)personality[1], species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], sleeveOffset[0], sleeveOffset[1]);
+			Draw(canvas, species.Parts["frontarm"], species.PartFrames["frontarm"], sleeveFrame, species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], sleeveOffset[0], sleeveOffset[1]);
 			if (previewWithClothesToolStripButton.Checked && chest != null)
-				Draw(canvas, chest.Parts[genderName + "frontSleeve"], chest.PartFrames[genderName + "frontSleeve"], (string)personality[1], chestColor, null, sleeveOffset[0], sleeveOffset[1]);
+			{
+				Draw(canvas, chest.Parts[genderName + "frontSleeve"], chest.PartFrames[genderName + "frontSleeve"], sleeveFrame, chestColor, null, sleeveOffset[0], sleeveOffset[1]);
+			}
 
-			if (toExport) return;
+			if (toExport)
+			{
+				return;
+			}
+
 			characterPictureBox.Image = canvas;
 		}
 
@@ -696,21 +703,29 @@ namespace SBCharCreator
 			RenderCharacter();
 		}
 
-		private void colorComboBox_DrawItem(object sender, DrawItemEventArgs e)
+		void colorComboBox_DrawItem(object sender, DrawItemEventArgs e)
 		{
 			if (((ComboBox)sender).Tag == null)
+			{
 				return;
+			}
 			if (e.Index == -1)
+			{
 				return;
+			}
 			var g = e.Graphics;
 			var item = ((JsonObj[])((ComboBox)sender).Tag)[e.Index];
 			var pal = item.Select(x =>
 			{
 				var c = (string)x.Value;
 				if (c.Length == 8) //RGBA
+				{
 					c = c.Substring(6, 2) + c.Substring(0, 6); //switch to ARGB
+				}
 				else //RGB
+				{
 					c = "FF" + c; //convert to ARGB
+				}
 				return new SolidBrush(Color.FromArgb(int.Parse(c, NumberStyles.HexNumber)));
 			}).ToArray();
 			var rect = new Rectangle(e.Bounds.Left + 2, e.Bounds.Top + 2, (e.Bounds.Width - 4) / pal.Length, e.Bounds.Height - 4);
@@ -733,22 +748,27 @@ namespace SBCharCreator
 		private void clothingComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (drawLock)
+			{
 				return;
+			}
 			var itemName = (string)(((ComboBox)sender).SelectedItem ?? (string)((ComboBox)sender).Items[0]);
 			var item = clothing.ContainsKey(itemName) ? clothing[itemName] : null;
 			if (item == null)
 			{
 				if (sender == chestComboBox)
+				{
 					chestColorComboBox.Enabled = false;
+				}
 				else if (sender == legsComboBox)
+				{
 					legsColorComboBox.Enabled = false;
+				}
 				RenderCharacter();
 				return;
 			}
 			item.Finish();
 			if (sender == chestComboBox)
 			{
-				var oldIndex = chestColorComboBox.SelectedIndex;
 				chestColorComboBox.Enabled = true;
 				chestColorComboBox.Items.Clear();
 				chestColorComboBox.Tag = item.ColorOptions;
@@ -757,7 +777,6 @@ namespace SBCharCreator
 			}
 			else if (sender == legsComboBox)
 			{
-				var oldIndex = legsColorComboBox.SelectedIndex;
 				legsColorComboBox.Enabled = true;
 				legsColorComboBox.Items.Clear();
 				legsColorComboBox.Tag = item.ColorOptions;
@@ -775,32 +794,33 @@ namespace SBCharCreator
 			RenderCharacter();
 		}
 
-		private void optionScrollBar_Scroll(object sender, ScrollEventArgs e)
-		{
-			if (drawLock)
-				return;
-			RenderCharacter();
-		}
-
 		private void optionScrollBar_ValueChanged(object sender, EventArgs e)
 		{
 			if (drawLock)
+			{
 				return;
+			}
 			RenderCharacter();
 		}
 
 		private void hairOptionComboBox_DrawItem(object sender, DrawItemEventArgs e)
 		{
 			if (e.Index == -1)
+			{
 				return;
+			}
 			var g = e.Graphics;
 			var species = (Species)speciesListbox.SelectedItem;
 			var gender = species.Genders[maleGenderRadioButton.Checked ? 0 : 1];
 			var set = gender.Hair;
 			if (sender == headOptionComboBox)
+			{
 				set = gender.FacialHair;
+			}
 			else if (sender == undyOptionComboBox)
+			{
 				set = gender.FacialMask;
+			}
 			var hairStyle = set.ElementAt(e.Index);
 			e.DrawBackground();
 			g.DrawString(hairStyle.Key, hairOptionComboBox.Font, e.State == DrawItemState.Selected ? SystemBrushes.HighlightText : SystemBrushes.ControlText, e.Bounds.Left + 24, e.Bounds.Top);
@@ -825,27 +845,49 @@ namespace SBCharCreator
 			drawLock = true;
 			var r = new Random();
 			if (!personalityCheckBox.Checked)
+			{
 				personalityTrackBar.Value = r.Next(personalityTrackBar.Maximum);
+			}
 			if (!bodyCheckBox.Checked)
+			{
 				bodyColorComboBox.SelectedIndex = r.Next(bodyColorComboBox.Items.Count);
+			}
 			if (undyColorComboBox.Visible && !undyCheckBox.Checked)
+			{
 				undyColorComboBox.SelectedIndex = r.Next(undyColorComboBox.Items.Count);
+			}
 			if (hairColorComboBox.Visible && !headCheckBox.Checked)
+			{
 				hairColorComboBox.SelectedIndex = r.Next(hairColorComboBox.Items.Count);
+			}
 			if (!hairCheckBox.Checked)
+			{
 				hairOptionComboBox.SelectedIndex = r.Next(hairOptionComboBox.Items.Count);
+			}
 			if (undyOptionComboBox.Visible && !undyCheckBox.Checked)
+			{
 				undyOptionComboBox.SelectedIndex = r.Next(undyOptionComboBox.Items.Count);
+			}
 			if (headOptionComboBox.Visible && !headCheckBox.Checked)
+			{
 				headOptionComboBox.SelectedIndex = r.Next(headOptionComboBox.Items.Count);
+			}
 			if (!chestColorCheckBox.Checked)
+			{
 				chestColorComboBox.SelectedIndex = r.Next(chestColorComboBox.Items.Count);
+			}
 			if (!legsColorCheckBox.Checked)
+			{
 				legsColorComboBox.SelectedIndex = r.Next(legsColorComboBox.Items.Count);
+			}
 			if (!chestCheckBox.Checked)
+			{
 				chestComboBox.SelectedIndex = r.Next(chestComboBox.Items.Count);
+			}
 			if (!legsCheckBox.Checked)
+			{
 				legsComboBox.SelectedIndex = r.Next(legsComboBox.Items.Count);
+			}
 			RenderCharacter();
 		}
 
@@ -899,7 +941,9 @@ namespace SBCharCreator
 					{
 						var itemName = (string)item.ElementAt(0).Value;
 						if (bluePrints.Contains(itemName))
+						{
 							continue;
+						}
 						bluePrints.Add(itemName);
 					}
 					catch (InvalidCastException)
@@ -924,7 +968,9 @@ namespace SBCharCreator
 			var hairColor = MakeReplaceDirectives(species.HairColor[hairColorComboBox.SelectedIndex]);
 			identity["bodyDirectives"] = bodyColor + undyColor;
 			if (species.HairColorAsBodySubColor)
+			{
 				identity["bodyDirectives"] = (string)identity["bodyDirectives"] + hairColor;
+			}
 			identity["emoteDirectives"] = bodyColor + undyColor;
 			identity["facialHairGroup"] = gender.FacialHairGroup;
 			if (species.HeadOptionAsFacialhair)
@@ -951,9 +997,13 @@ namespace SBCharCreator
 			}
 			identity["hairDirectives"] = bodyColor;
 			if (species.HeadOptionAsHairColor)
+			{
 				identity["hairDirectives"] = hairColor;
+			}
 			if (species.AltOptionAsHairColor)
+			{
 				identity["hairDirectives"] = (string)identity["hairDirectives"] + undyColor;
+			}
 			identity["hairGroup"] = gender.HairGroup;
 			identity["hairType"] = gender.Hair.ElementAt(hairOptionComboBox.SelectedIndex).Key;
 			identity["name"] = nameTextBox.Text;
@@ -1011,7 +1061,9 @@ namespace SBCharCreator
 		private void loadPresetToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (openFileDialog.ShowDialog(this) == DialogResult.Cancel)
+			{
 				return;
+			}
 			var save = default(JsonObj);
 			try
 			{
@@ -1037,9 +1089,13 @@ namespace SBCharCreator
 			identityPanel.Hide();
 			nameTextBox.Text = (string)save["name"];
 			if (save.ContainsKey("description"))
+			{
 				descriptionTextBox.Text = (string)save["description"];
+			}
 			else
+			{
 				descriptionTextBox.Text = "This guy seems to have nothing to say for himself.";
+			}
 			if (save.ContainsKey("color"))
 				beamColorPanel.BackColor = ColorFromJson(save["color"]);
 			else
@@ -1049,9 +1105,13 @@ namespace SBCharCreator
 			{
 				var gender = (int)((double)save["gender"]);
 				if (gender > 0)
+				{
 					femaleGenderRadioButton.Checked = true;
+				}
 				else
+				{
 					maleGenderRadioButton.Checked = true;
+				}
 			}
 			personalityTrackBar.Value = (int)((double)save["personality"]);
 			bodyColorComboBox.SelectedIndex = (int)((double)save["bodyColor"]);
@@ -1078,9 +1138,13 @@ namespace SBCharCreator
 		private void savePresetToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (!string.IsNullOrWhiteSpace(nameTextBox.Text))
+			{
 				saveFileDialog.FileName = nameTextBox.Text + ".config";
+			}
 			if (saveFileDialog.ShowDialog(this) == DialogResult.Cancel)
+			{
 				return;
+			}
 			var save = new JsonObj();
 			save.Add("sbCharCreator", Application.ProductVersion);
 			save.Add("name", nameTextBox.Text);
@@ -1118,7 +1182,9 @@ namespace SBCharCreator
 		private void previewWithClothesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (drawLock)
+			{
 				return;
+			}
 			RenderCharacter();
 		}
 
@@ -1145,7 +1211,9 @@ namespace SBCharCreator
 		{
 			colorDialog1.Color = beamColorPanel.BackColor;
 			if (colorDialog1.ShowDialog(this) == DialogResult.OK)
+			{
 				beamColorPanel.BackColor = colorDialog1.Color;
+			}
 		}
 
 		private Color ColorFromJson(object vector3)
@@ -1192,7 +1260,9 @@ namespace SBCharCreator
 		{
 			openFileDialog1.InitialDirectory = SavePath;
 			if (openFileDialog1.ShowDialog(this) == DialogResult.Cancel)
+			{
 				return;
+			}
 			using (var stream = new BinaryReader(openFileDialog1.OpenFile()))
 			{
 				editPlayer = (JsonObj)Json5.Deserialize(stream);
@@ -1232,20 +1302,32 @@ namespace SBCharCreator
 			identityPanel.Hide();
 			nameTextBox.Text = (string)identity["name"];
 			if (content.ContainsKey("description"))
+			{
 				descriptionTextBox.Text = (string)content["description"];
+			}
 			else
+			{
 				descriptionTextBox.Text = "This guy seems to have nothing to say for himself.";
+			}
 			if (identity.ContainsKey("color"))
+			{
 				beamColorPanel.BackColor = ColorFromJson(identity["color"]);
+			}
 			else
+			{
 				beamColorPanel.BackColor = Color.FromArgb(51, 117, 237);
+			}
 			speciesListbox.SelectedIndex = species.IndexOf(savedSpecies);
 			if (identity.ContainsKey("gender"))
 			{
 				if ((string)identity["gender"] == "female")
+				{
 					femaleGenderRadioButton.Checked = true;
+				}
 				else
+				{
 					maleGenderRadioButton.Checked = true;
+				}
 			}
 			var gender = savedSpecies.Genders[maleGenderRadioButton.Checked ? 0 : 1];
 			
@@ -1309,25 +1391,33 @@ namespace SBCharCreator
 
 			var hairType = (string)identity["hairType"];
 			if (hairOptionComboBox.Items.Contains(hairType))
+			{
 				hairOptionComboBox.SelectedItem = hairType;
+			}
 
 			if (savedSpecies.AltOptionAsFacialMask)
 			{
 				var facialHairType = (string)identity["facialHairType"];
 				if (undyOptionComboBox.Items.Contains(facialHairType))
+				{
 					undyOptionComboBox.SelectedItem = facialHairType;
+				}
 			}
 
 			var inventory = (JsonObj)content["inventory"];
 			var chestSlot = (JsonObj)inventory["chestCosmeticSlot"];
 			if (chestSlot == null)
+			{
 				chestSlot = (JsonObj)inventory["chestSlot"];
+			}
 			if (chestSlot != null)
 			{
 				var chestContent = (JsonObj)chestSlot["content"];
 				var chest = (string)chestContent["name"];
 				if (chestComboBox.Items.Contains(chest))
+				{
 					chestComboBox.SelectedItem = chest;
+				}
 				if (((JsonObj)chestContent["parameters"]).Count > 0)
 				{
 					var index = 0;
@@ -1348,13 +1438,17 @@ namespace SBCharCreator
 			}
 			var legsSlot = (JsonObj)inventory["legsCosmeticSlot"];
 			if (legsSlot == null)
+			{
 				legsSlot = (JsonObj)inventory["legsSlot"];
+			}
 			if (legsSlot != null)
 			{
 				var legsContent = (JsonObj)legsSlot["content"];
 				var legs = (string)legsContent["name"];
 				if (legsComboBox.Items.Contains(legs))
+				{
 					legsComboBox.SelectedItem = legs;
+				}
 				if (((JsonObj)legsContent["parameters"]).Count > 0)
 				{
 					var index = (int)((long)((JsonObj)legsContent["parameters"])["colorIndex"]);

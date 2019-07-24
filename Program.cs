@@ -23,7 +23,9 @@ namespace SBCharCreator
 				Application.Run(new charCreatorForm());
 			}
 			catch (ObjectDisposedException)
-			{ }
+			{
+				//Because Winforms is silly.
+			}
 		}
 	}
 }

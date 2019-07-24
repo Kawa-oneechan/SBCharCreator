@@ -50,8 +50,12 @@ namespace SBCharCreator
 				{
 					var i = 0;
 					for (var rowIndex = 0; rowIndex < dimensions[1]; rowIndex++)
+					{
 						for (var colIndex = 0; colIndex < dimensions[0]; colIndex++, i++)
+						{
 							Names.Add(i.ToString(), new[] { colIndex * size[0], rowIndex * size[1], size[0], size[1] });
+						}
+					}
 				}
 			}
 			if (source.ContainsKey("aliases"))

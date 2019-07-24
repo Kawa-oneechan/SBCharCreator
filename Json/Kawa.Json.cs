@@ -398,7 +398,9 @@ namespace Kawa.Json
 						next();
 					}
 					else
+					{
 						return string.Empty;
+					}
 				}
 				return string.Empty;
 			};
@@ -582,12 +584,12 @@ namespace Kawa.Json
 			//so unexpected.
 			//-- KAWA
 			white();
-			object ret;
+			object ret = null;
 			if (ch == '\0')
 			{
-				ret = null;
+				//Ret is null and stays null.
 			}
-			if (ch == '[')
+			else if (ch == '[')
 			{
 				ret = @array();
 			}
@@ -701,94 +703,95 @@ namespace Kawa.Json
 				var buffer = new StringBuilder();
 				var singleBuffer = new StringBuilder();
 				var res = string.Empty;
-				if (obj_part == null)
+				var o = obj_part;
+				if (o == null)
 				{
 					return "null";
 				}
-				if (obj_part is bool)
+				if (o is bool)
 				{
-					return obj_part.ToString().ToLowerInvariant();
+					return o.ToString().ToLowerInvariant();
 				}
-				if (obj_part is double || obj_part is float)
+				if (o is double || o is float)
 				{
-					if (!AllowNaN && (double.IsNaN((double)obj_part) || double.IsInfinity((double)obj_part)))
+					if (!AllowNaN && (double.IsNaN((double)o) || double.IsInfinity((double)o)))
 					{
 						throw new JsonException("Found an unallowed NaN or Infinity value.");
 					}
 					else
 					{
-						return obj_part.ToString();
+						return o.ToString();
 					}
 				}
-				if (obj_part is int || obj_part is long)
+				if (o is int || o is long)
 				{
-					return obj_part.ToString();
+					return o.ToString();
 				}
-				if (obj_part is int[])
+				if (o is int[])
 				{
-					return internalStringify(((int[])obj_part).Cast<object>().ToList());
+					return internalStringify(((int[])o).Cast<object>().ToList());
 				}
-				if (obj_part is long[])
+				if (o is long[])
 				{
-					return internalStringify(((long[])obj_part).Cast<object>().ToList());
+					return internalStringify(((long[])o).Cast<object>().ToList());
 				}
-				if (obj_part is double[])
+				if (o is double[])
 				{
-					return internalStringify(((double[])obj_part).Cast<object>().ToList());
+					return internalStringify(((double[])o).Cast<object>().ToList());
 				}
-				if (obj_part is float[])
+				if (o is float[])
 				{
-					return internalStringify(((float[])obj_part).Cast<object>().ToList());
+					return internalStringify(((float[])o).Cast<object>().ToList());
 				}
-				if (obj_part is string[])
+				if (o is string[])
 				{
-					return internalStringify(((string[])obj_part).Cast<object>().ToList());
+					return internalStringify(((string[])o).Cast<object>().ToList());
 				}
-				if (obj_part is List<int>)
+				if (o is List<int>)
 				{
-					return internalStringify(((List<int>)obj_part).Cast<object>().ToList());
+					return internalStringify(((List<int>)o).Cast<object>().ToList());
 				}
-				if (obj_part is List<long>)
+				if (o is List<long>)
 				{
-					return internalStringify(((List<long>)obj_part).Cast<object>().ToList());
+					return internalStringify(((List<long>)o).Cast<object>().ToList());
 				}
-				if (obj_part is List<double>)
+				if (o is List<double>)
 				{
-					return internalStringify(((List<double>)obj_part).Cast<object>().ToList());
+					return internalStringify(((List<double>)o).Cast<object>().ToList());
 				}
-				if (obj_part is List<float>)
+				if (o is List<float>)
 				{
-					return internalStringify(((List<float>)obj_part).Cast<object>().ToList());
+					return internalStringify(((List<float>)o).Cast<object>().ToList());
 				}
-				if (obj_part is List<string>)
+				if (o is List<string>)
 				{
-					return internalStringify(((List<string>)obj_part).Cast<object>().ToList());
+					return internalStringify(((List<string>)o).Cast<object>().ToList());
 				}
-				if (obj_part is string)
+				if (o is string)
 				{
-					return escapeString(obj_part.ToString());
+					return escapeString(o.ToString());
 				}
-				if (obj_part is object)
+				if (o is object)
 				{
-					if (obj_part is object[])
+					if (o is object[])
 					{
-						obj_part = ((object[])obj_part).ToList();
+						o = ((object[])o).ToList();
 					}
-					if (obj_part == null)
+					if (o == null)
 					{
 						return "null";
 					}
-					else if (obj_part is List<object>)
+					else if (o is List<object>)
 					{
-						checkForCircular(obj_part);
-						var objPartAsArray = obj_part as List<object>;
+						checkForCircular(o);
+						var objPartAsArray = o as List<object>;
 						if (objPartAsArray.Count == 0)
 						{
 							return "[]";
 						}
 						buffer.Append('[');
 						singleBuffer.Append('[');
-						objStack.Push(obj_part);
+						objStack.Push(o);
 						for (var i = 0; i < objPartAsArray.Count; i++)
 						{
 							res = internalStringify(objPartAsArray[i]);
@@ -823,14 +826,14 @@ namespace Kawa.Json
 							return singleBuffer.ToString();
 						}
 					}
-					else if (obj_part is JsonObj)
+					else if (o is JsonObj)
 					{
-						checkForCircular(obj_part);
+						checkForCircular(o);
 						buffer.Append('{');
 						singleBuffer.Append('{');
-						objStack.Push(obj_part);
+						objStack.Push(o);
 						var nonEmpty = false;
-						var objPartAsDict = obj_part as JsonObj;
+						var objPartAsDict = o as JsonObj;
 						foreach (var pair in objPartAsDict)
 						{
 							var val = internalStringify(pair.Value);
