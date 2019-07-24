@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -119,7 +119,10 @@ namespace SBCharCreator
 
 				foreach (var s in speciesOrdering)
 				{
-					if (stopLoadingDipshit) return;
+					if (stopLoadingDipshit)
+					{
+						return;
+					}
 					loader.ReportProgress((int)(((float)i / (float)totalShit) * 100), s);
 					i++;
 					var newSpecies = new Species((JsonObj)Assets.GetJson("/species/" + s + ".species"));
