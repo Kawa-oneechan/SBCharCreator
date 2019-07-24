@@ -18,48 +18,53 @@ namespace SBCharCreator
 		public Dictionary<string, Bitmap> Parts { get; private set; }
 		public Dictionary<string, Frames> PartFrames { get; private set; }
 
-		private JsonObj source;
-		private string path;
+		private readonly JsonObj source;
+		private readonly string path;
 
-		private static JsonObj[] colorOptionsFallback = new[] { new JsonObj() { { "000000", "000000" } } };
+		private static JsonObj[] colorOptionsFallback = new[] { new JsonObj { { "000000", "000000" } } };
 
 		public Clothing(JsonObj source, string path)
 		{
 			var origPath = path;
-			if (!path.EndsWith("/"))
-				path = path.Substring(0, path.LastIndexOf('/') + 1);
+			var myPath = path;
+			if (!myPath.EndsWith("/"))
+			{
+				myPath = myPath.Substring(0, myPath.LastIndexOf('/') + 1);
+			}
 
 			this.ItemName = source.Path<string>("/itemName");
 			this.ShortDescription = source.Path<string>("/shortdescription");
 			this.Category = source.Path<string>("/category", GuessCategory(origPath));
 
 			this.source = source;
-			this.path = path;
+			this.path = myPath;
 		}
 
-		private string GuessCategory(string path)
+		private static string GuessCategory(string path)
 		{
 			if (path.Contains("tier"))
 			{
-				if (path.EndsWith(".head")) return "headarmour";
-				if (path.EndsWith(".chest")) return "chestarmour";
-				if (path.EndsWith(".legs")) return "legarmour";
+				if (path.EndsWith(".head")) { return "headarmour"; }
+				if (path.EndsWith(".chest")) { return "chestarmour"; }
+				if (path.EndsWith(".legs")) { return "legarmour"; }
 			}
 			else
 			{
-				if (path.EndsWith(".head")) return "headwear";
-				if (path.EndsWith(".chest")) return "chestwear";
-				if (path.EndsWith(".legs")) return "legwear";
-				if (path.EndsWith(".back")) return "backwear";
+				if (path.EndsWith(".head")) { return "headwear"; }
+				if (path.EndsWith(".chest")) { return "chestwear"; }
+				if (path.EndsWith(".legs")) { return "legwear"; }
+				if (path.EndsWith(".back")) { return "backwear"; }
 			}
-			if (path.EndsWith(".back")) return "backwear";
+			if (path.EndsWith(".back")) { return "backwear"; }
 			return string.Empty;
 		}
 
 		public void Finish()
 		{
 			if (this.ColorOptions != null)
+			{
 				return;
+			}
 
 			charCreatorForm.SetStatus(string.Format("Loading {0}...", this.ItemName));
 
@@ -85,12 +90,18 @@ namespace SBCharCreator
 				}
 			}
 			if (source.ContainsKey("mask"))
+			{
 				this.Mask = Assets.GetImage(path + (string)source["mask"]);
+			}
 
 			if (source.ContainsKey("colorOptions"))
+			{
 				this.ColorOptions = source.Path<JsonObj[]>("/colorOptions");
+			}
 			else
+			{
 				this.ColorOptions = colorOptionsFallback;
+			}
 
 			charCreatorForm.SetStatus(string.Empty);
 		}

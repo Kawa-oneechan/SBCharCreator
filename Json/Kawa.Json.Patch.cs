@@ -27,35 +27,29 @@ namespace Kawa.Json.Patch
 					if (index < n.Count)
 					{
 						if (j < path.Length - 1)
+						{
 							node = n[index];
-						else
-							lastIndex = index;
-						/*
+						}
 						else
 						{
-							if (operation == "add")
-							{
-								((List<object>)node).Insert(index + 1, new object());
-								lastIndex = index + 1;
-							}
-							else
-								lastIndex = index;
+							lastIndex = index;
 						}
-						*/
 					}
 				}
 				else if (part == "-")
 				{
 					if (!(node is List<object>))
+					{
 						throw new JsonException("Invalid patch: tried to navigate into an array, but it's not an array.");
-					//if (operation == "add")
-					//	((List<object>)node).Add(new object());
+					}
 					lastIndex = ((List<object>)node).Count;
 				}
 				else
 				{
 					if (!(node is JsonObj))
+					{
 						throw new JsonException("Invalid patch: tried to navigate into an object, but it's not an object.");
+					}
 					var n = node as JsonObj;
 					if (!n.ContainsKey(part))
 					{
@@ -65,9 +59,13 @@ namespace Kawa.Json.Patch
 							if (j < path.Length - 1)
 							{
 								if (char.IsDigit(path[j + 1][0]))
+								{
 									n.Add(part, new List<object>());
+								}
 								else
+								{
 									n.Add(part, new JsonObj());
+								}
 							}
 							else
 							{
@@ -75,7 +73,9 @@ namespace Kawa.Json.Patch
 							}
 						}
 						else
+						{
 							throw new JsonException("Invalid patch: tried to navigate into a non-existant part, but we're not adding.");
+						}
 					}
 					if (j < path.Length - 1)
 						node = n[part];
@@ -88,9 +88,13 @@ namespace Kawa.Json.Patch
 		public static void Apply(object original, object patch)
 		{
 			if (!(original is JsonObj))
+			{
 				throw new ArgumentException("Original must be a JSON Object.");
+			}
 			if (!(patch is IEnumerable<object>))
+			{
 				throw new ArgumentException("Patch must be a JSON Array.");
+			}
 			var o = original as JsonObj;
 			var p = (patch as IEnumerable<object>).OfType<JsonObj>().ToArray();
 			for (var i = 0; i < p.Length; i++)
@@ -98,21 +102,31 @@ namespace Kawa.Json.Patch
 				var item = p[i];
 
 				if (!item.ContainsKey("op"))
+				{
 					throw new JsonException("Invalid patch: item does not specify an operation.");
+				}
 				var operation = item["op"] as string;
 				var path = (item.ContainsKey("path") ? item["path"] as string : string.Empty).Split('/');
 				var from = (item.ContainsKey("from") ? item["from"] as string : string.Empty).Split('/');
 				var value = item.ContainsKey("value") ? item["value"] : default(object);
 
 				if (operation == "test")
+				{
 					throw new JsonException("Correct patch, but the test operation is not supported here.");
+				}
 
 				if (path.Length == 0)
+				{
 					throw new JsonException("Invalid patch: add operation does not specify a path.");
+				}
 				if (value == null && (operation == "add" && operation == "replace" && operation == "remove"))
+				{
 					throw new JsonException("Invalid patch: add operation does not specify a value.");
+				}
 				if (operation == "move" && from.Length == 0)
+				{
 					throw new JsonException("Invalid patch: move operation does not specify a from.");
+				}
 				var node = default(object);
 				var lastKey = string.Empty;
 				var lastIndex = -1;
@@ -125,17 +139,25 @@ namespace Kawa.Json.Patch
 					else if (node is List<object>)
 					{
 						if (operation == "add")
+						{
 							((List<object>)node).Insert(lastIndex, value);
+						}
 						else
+						{
 							((List<object>)node)[lastIndex] = value;
+						}
 					}
 				}
 				else if (operation == "remove")
 				{
 					if (node is JsonObj)
+					{
 						((JsonObj)node).Remove(lastKey);
+					}
 					else if (node is List<object>)
+					{
 						((List<object>)node).RemoveAt(lastIndex);
+					}
 				}
 				else if (operation == "move")
 				{
@@ -144,9 +166,13 @@ namespace Kawa.Json.Patch
 					var fromLastIndex = -1;
 					ParsePath(o, operation, from, ref fromNode, ref fromLastKey, ref fromLastIndex);
 					if (fromNode is JsonObj)
+					{
 						((JsonObj)node)[lastKey] = ((JsonObj)fromNode)[fromLastKey];
+					}
 					else if (node is List<Object>)
+					{
 						((List<object>)node)[lastIndex] = ((List<object>)node)[fromLastIndex];
+					}
 				}
 				else if (operation == "copy")
 				{
@@ -155,9 +181,13 @@ namespace Kawa.Json.Patch
 					var fromLastIndex = -1;
 					ParsePath(o, operation, from, ref fromNode, ref fromLastKey, ref fromLastIndex);
 					if (fromNode is JsonObj)
+					{
 						((JsonObj)node)[lastKey] = ((JsonObj)fromNode)[fromLastKey];
+					}
 					else if (node is List<Object>)
+					{
 						((List<object>)node).Insert(lastIndex, ((List<object>)node)[fromLastIndex]);
+					}
 				}
 			}
 		}

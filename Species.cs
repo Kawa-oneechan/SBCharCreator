@@ -36,7 +36,7 @@ namespace SBCharCreator
 		public Dictionary<string, Bitmap> Parts { get; private set; }
 		public Dictionary<string, Frames> PartFrames { get; private set; }
 
-		private JsonObj source;
+		private readonly JsonObj source;
 
 		public Species(JsonObj source)
 		{
@@ -53,7 +53,9 @@ namespace SBCharCreator
 		public void Finish()
 		{
 			if (this.HairColor != null)
+			{
 				return;
+			}
 
 			charCreatorForm.SetStatus(string.Format("Loading {0}...", this.Kind));
 
@@ -75,7 +77,9 @@ namespace SBCharCreator
 			this.HeadOptionAsHairColor = source.Path<bool>("/headOptionAsHairColor", false);
 
 			foreach (var gender in this.Genders)
+			{
 				gender.Finish();
+			}
 
 			var humanoidFolder = "/humanoid/" + this.Kind + "/";
 			this.Parts = new Dictionary<string, Bitmap>();
@@ -86,20 +90,12 @@ namespace SBCharCreator
 				this.PartFrames.Add(part, Assets.GetFrames(humanoidFolder + part + ".frames"));
 			}
 
-			BodyColor = source.Path<JsonObj[]>("/bodyColor"); //((List<object>)source["bodyColor"]).Cast<JsonObj>().ToArray();
+			BodyColor = source.Path<JsonObj[]>("/bodyColor");
 			var dummyColor = new[] { (JsonObj)Json5.Parse("{ \"ff00ff00\" : \"ff00ff00\" }") };
 			var undyColor = source.Path<List<object>>("/undyColor");
 			var hairColor = source.Path<List<object>>("/hairColor");
 			UndyColor = (undyColor[0] is string) ? dummyColor : undyColor.Cast<JsonObj>().ToArray();
 			HairColor = (hairColor[0] is string) ? dummyColor : hairColor.Cast<JsonObj>().ToArray();
-			/*if (((List<object>)source["undyColor"])[0] is string)
-				UndyColor = dummyColor;
-			else
-				UndyColor = ((List<object>)source["undyColor"]).Cast<JsonObj>().ToArray();
-			if (((List<object>)source["hairColor"])[0] is string)
-				HairColor = dummyColor;
-			else
-				HairColor = ((List<object>)source["hairColor"]).Cast<JsonObj>().ToArray();*/
 
 			charCreatorForm.SetStatus(string.Empty);
 		}
@@ -127,8 +123,8 @@ namespace SBCharCreator
 		public Dictionary<string, Bitmap> FacialMask { get; private set; }
 		public Dictionary<string, Frames> FacialMaskFrames { get; private set; }
 		
-		private JsonObj source;
-		private string species;
+		private readonly JsonObj source;
+		private readonly string species;
 
 		public Gender(JsonObj source, string species)
 		{
@@ -143,7 +139,9 @@ namespace SBCharCreator
 		public void Finish()
 		{
 			if (this.Hair != null)
+			{
 				return;
+			}
 
 			charCreatorForm.SetStatus(string.Format("Loading {0} {1}...", species, this.Name));
 
@@ -155,17 +153,19 @@ namespace SBCharCreator
 			foreach (var h in hair)
 			{
 				if (string.IsNullOrWhiteSpace(h))
+				{
 					continue;
+				}
 				this.Hair.Add(h, Assets.GetImage(hairPath + h + ".png"));
 				this.HairFrames.Add(h, Assets.GetFrames(hairPath + h + ".frames"));
 			}
 
-			this.Shirt = source.Path<List<string>>("/shirt").Distinct().ToArray(); //((List<object>)source["shirt"]).Cast<string>().Distinct().ToArray();
-			this.Pants = source.Path<List<string>>("/pants").Distinct().ToArray(); ////((List<object>)source["pants"]).Cast<string>().Distinct().ToArray();
+			this.Shirt = source.Path<List<string>>("/shirt").Distinct().ToArray();
+			this.Pants = source.Path<List<string>>("/pants").Distinct().ToArray();
 
-			this.FacialHairGroup = source.Path<string>("/facialHairGroup", string.Empty); //source.ContainsKey("facialHairGroup") ? (string)source["facialHairGroup"] : "";
+			this.FacialHairGroup = source.Path<string>("/facialHairGroup", string.Empty);
 			hairPath = "/humanoid/" + species + "/" + this.FacialHairGroup + "/";
-			hair = source.Path<List<string>>("/facialHair"); //((List<object>)source["facialHair"]).Cast<string>();
+			hair = source.Path<List<string>>("/facialHair");
 			this.FacialHair = new Dictionary<string, Bitmap>();
 			this.FacialHairFrames = new Dictionary<string, Frames>();
 			
@@ -186,9 +186,9 @@ namespace SBCharCreator
 				this.FacialHairFrames.Add(h, Assets.GetFrames(hairPath + h + ".frames"));
 			}
 
-			this.FacialMaskGroup = source.Path<string>("/facialMaskGroup", string.Empty); //source.ContainsKey("facialMaskGroup") ? (string)source["facialMaskGroup"] : "";
+			this.FacialMaskGroup = source.Path<string>("/facialMaskGroup", string.Empty);
 			hairPath = "/humanoid/" + species + "/" + this.FacialMaskGroup + "/";
-			hair = source.Path<List<string>>("/facialMask"); //((List<object>)source["facialMask"]).Cast<string>();
+			hair = source.Path<List<string>>("/facialMask");
 			this.FacialMask = new Dictionary<string, Bitmap>();
 			this.FacialMaskFrames = new Dictionary<string, Frames>();
 
@@ -202,7 +202,9 @@ namespace SBCharCreator
 			foreach (var h in hair)
 			{
 				if (string.IsNullOrWhiteSpace(h))
+				{
 					continue;
+				}
 				this.FacialMask.Add(h, Assets.GetImage(hairPath + h + ".png"));
 				this.FacialMaskFrames.Add(h, Assets.GetFrames(hairPath + h + ".frames"));
 			}

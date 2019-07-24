@@ -14,7 +14,9 @@ namespace SBCharCreator
 		private static string TitleCase(string text, JsonObj part)
 		{
 			if (part.ContainsKey("titleCase") && (bool)part["titleCase"])
+			{
 				return ti.ToTitleCase(text.ToLowerInvariant());
+			}
 			return text;
 		}
 
@@ -25,10 +27,12 @@ namespace SBCharCreator
 			var samples = ((List<object>)settings["sourceNames"]).Cast<string>().ToList();
 			var chains = new Dictionary<string, List<char>>();
 
-			Func<string, char> getLetter = new Func<string, char>(token =>
+			var getLetter = new Func<string, char>(token =>
 			{
 				if (!chains.ContainsKey(token))
+				{
 					return '?';
+				}
 				List<char> letters = chains[token];
 				int n = rand.Next(letters.Count);
 				return letters[n];
@@ -41,7 +45,9 @@ namespace SBCharCreator
 					var token = word.Substring(letter, order);
 					List<char> entry = null;
 					if (chains.ContainsKey(token))
+					{
 						entry = chains[token];
+					}
 					else
 					{
 						entry = new List<char>();
@@ -62,9 +68,10 @@ namespace SBCharCreator
 					string token = ret.Substring(ret.Length - order, order);
 					char c = getLetter(token);
 					if (c != '?')
-						ret += getLetter(token);
-					else
-						break;
+					{
+						ret += getLetter(token);}
+					else{
+						break;}
 				}
 
 				if (ret.Contains(" "))
@@ -76,18 +83,18 @@ namespace SBCharCreator
 						if (tokens[t] == "")
 							continue;
 						if (tokens[t].Length == 1)
-							tokens[t] = tokens[t].ToUpper();
+							tokens[t] = tokens[t].ToUpperInvariant();
 						else
-							tokens[t] = tokens[t].Substring(0, 1) + tokens[t].Substring(1).ToLower();
+							tokens[t] = tokens[t].Substring(0, 1) + tokens[t].Substring(1).ToLowerInvariant();
 						if (ret != "")
 							ret += " ";
 						ret += tokens[t];
 					}
 				}
 				else
-					ret = ret.Substring(0, 1) + ret.Substring(1).ToLower();
+					ret = ret.Substring(0, 1) + ret.Substring(1).ToLowerInvariant();
 			}
-			while (/* _used.Contains(s) || */ ret.Length < minLength);
+			while (ret.Length < minLength);
 			return ret;
 		}
 
@@ -100,9 +107,13 @@ namespace SBCharCreator
 				{
 					var alt = part[rand.Next(1, part.Count)];
 					if (alt is string)
+					{
 						return TitleCase((string)alt, (JsonObj)part[0]);
+					}
 					else
+					{
 						return TitleCase(Parse((List<object>)alt), (JsonObj)part[0]);
+					}
 				}
 				else if (mode == "serie")
 				{
@@ -110,9 +121,13 @@ namespace SBCharCreator
 					for (var i = 1; i < part.Count; i++)
 					{
 						if (part[i] is string)
+						{
 							sb.Append(part[i]);
+						}
 						else
+						{
 							sb.Append(Parse((List<object>)part[i]));
+						}
 					}
 					return TitleCase(sb.ToString(), (JsonObj)part[0]);
 				}
@@ -122,35 +137,34 @@ namespace SBCharCreator
 					return TitleCase(name.ToString(), (JsonObj)part[0]);
 				}
 			}
-			else if (part is List<object>)
+			else if (part is List<object> || part[0] is string)
 			{
 				//Assume alts
 				var alt = part[rand.Next(0, part.Count)];
 				if (alt is string)
+				{
 					return (string)alt;
+				}
 				else
+				{
 					return Parse((List<object>)alt);
+				}
 			}
-			else if (part[0] is string)
-			{
-				//Assume alts
-				var alt = part[rand.Next(0, part.Count)];
-				if (alt is string)
-					return (string)alt;
-				else
-					return Parse((List<object>)alt);
-			}
-			throw new Exception("Expected a mode object.");
+			throw new InvalidCastException("Expected a mode object.");
 		}
 
 		public static string Generate(JsonObj source, string key)
 		{
 			if (rand == null)
+			{
 				rand = new Random();
+			}
 			var part = source[key];
 			if (part is List<object>)
+			{
 				return Parse((List<object>)part);
-			throw new Exception("Expected a list.");
+			}
+			throw new InvalidCastException("Expected a list.");
 		}
 	}
 }

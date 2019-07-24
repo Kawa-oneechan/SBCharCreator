@@ -72,7 +72,7 @@ namespace Kawa.Json
 
 			var at = 0; //The index of the current character
 			var ch = ' '; //The current character
-			var escapee = new Dictionary<char, string>()
+			var escapee = new Dictionary<char, string>
 			{
 				{ '\'', "\'" },
 				{ '\"', "\"" },
@@ -91,14 +91,18 @@ namespace Kawa.Json
 				for (var i = 0; i < at; i++)
 				{
 					if (text[i] == '\r')
+					{
 						line++;
+					}
 				}
 				return line;
 			};
 			Func<char> next = () =>
 			{
 				if (at >= text.Length)
+				{
 					ch = '\0';
+				}
 				else
 				{
 					ch = text[at];
@@ -109,7 +113,9 @@ namespace Kawa.Json
 			Func<char, char> expect = (c) =>
 			{
 				if (c != ch)
+				{
 					throw new JsonException(string.Format("Expected '{1}' instead of '{0}'", ch, c), locateError());
+				}
 				return next();
 			};
 			#region identifier
@@ -121,14 +127,18 @@ namespace Kawa.Json
 				if ((ch != '_' && ch != '$') &&
 					(ch < 'a' || ch > 'z') &&
 					(ch < 'A' || ch > 'Z'))
+				{
 					throw new JsonException("Bad identifier", locateError());
+				}
 				//Subsequent characters can contain digits.
 				while (next() != '\0' && (
 					ch == '_' || ch == '$' ||
 					(ch >= 'a' && ch <= 'z') ||
 					(ch >= 'A' && ch <= 'Z') ||
 					(ch >= '0' && ch <= '9')))
+				{
 					key.Append(ch);
+				}
 				return key.ToString();
 			};
 			#endregion
@@ -155,7 +165,9 @@ namespace Kawa.Json
 					expect('t');
 					expect('y');
 					if (!AllowNaN)
+					{
 						throw new JsonException("Found an unallowed Infinity value.");
+					}
 					return (sign == '-') ? double.NegativeInfinity : double.PositiveInfinity;
 				}
 				if (ch == '0')
@@ -169,12 +181,16 @@ namespace Kawa.Json
 						bas = 16;
 					}
 					else if (ch >= '0' && ch <= '9')
+					{
 						throw new JsonException("Octal literal", locateError());
+					}
 				}
 
 				//https://github.com/aseemk/json5/issues/36
 				if (bas == 16 && sign != '\0')
+				{
 					throw new JsonException("Signed hexadecimal literal", locateError());
+				}
 
 				switch (bas)
 				{
@@ -187,10 +203,14 @@ namespace Kawa.Json
 						if (ch == '.')
 						{
 							if (str.Length == 0)
+							{
 								str.Append('0');
+							}
 							str.Append(ch);
 							while (next() != '\0' && ch >= '0' && ch <= '9')
+							{
 								str.Append(ch);
+							}
 						}
 						if (ch == 'e' || ch == 'E')
 						{
@@ -215,9 +235,13 @@ namespace Kawa.Json
 							next();
 						}
 						break;
+					default:
+						throw new JsonException("Invalid number base, somehow.");
 				}
 				if (bas == 16)
+				{
 					return int.Parse(str.ToString().Substring(2), System.Globalization.NumberStyles.HexNumber);
+				}
 				try
 				{
 					return Double.Parse(str.ToString());
@@ -234,7 +258,7 @@ namespace Kawa.Json
 				var hex = 0;
 				var i = 0;
 				var str = new StringBuilder();
-				var delim = '\0';
+				char delim;
 				var uffff = 0;
 				//When parsing for string values, we must look for ' or " and \ characters.
 				if (ch == '"' || ch == '\'')
@@ -267,19 +291,18 @@ namespace Kawa.Json
 								str.Append((char)uffff);
 							}
 							else if (escapee.ContainsKey(ch))
+							{
 								str.Append(escapee[ch]);
+							}
 							else
+							{
 								break;
+							}
 						}
-						//else if (ch == '\n')
-							//unescaped newlines are invalid; see:
-							//https://github.com/aseemk/json5/issues/24
-							//TODO this feels special-cased; are there other
-							//invalid unescaped chars?
-							//str.Append("\\n");
-							//break;
 						else
+						{
 							str.Append(ch);
+						}
 					}
 				}
 				throw new JsonException("Bad string", locateError());
@@ -292,7 +315,9 @@ namespace Kawa.Json
 				//be the second / character in the // pair that begins this inline comment.
 				//To finish the inline comment, we look for a newline or the end of the text.
 				if (ch != '/')
+				{
 					throw new JsonException("Not an inline comment");
+				}
 				do
 				{
 					next();
@@ -313,7 +338,9 @@ namespace Kawa.Json
 				//To finish the block comment, we look for an ending */ pair of characters,
 				//but we also watch for the end of text before the comment is terminated.
 				if (ch != '*')
+				{
 					throw new JsonException("Not a block comment");
+				}
 				do
 				{
 					next();
@@ -334,14 +361,22 @@ namespace Kawa.Json
 			Func<string> comment = () =>
 			{
 				if (ch != '/')
+				{
 					throw new JsonException("Not a comment", locateError());
+				}
 				expect('/');
 				if (ch == '/')
+				{
 					inlineComment();
+				}
 				else if (ch == '*')
+				{
 					blockComment();
+				}
 				else
+				{
 					throw new JsonException("Unrecognized comment", locateError());
+				}
 				return string.Empty;
 			};
 			#endregion
@@ -355,9 +390,13 @@ namespace Kawa.Json
 				while (ch != '\0')
 				{
 					if (ch == '/')
+					{
 						comment();
+					}
 					else if (ch <= ' ')
+					{
 						next();
+					}
 					else
 						return string.Empty;
 				}
@@ -389,8 +428,9 @@ namespace Kawa.Json
 						expect('l');
 						expect('l');
 						return null;
+					default:
+						throw new JsonException(string.Format("Unexpected '{0}'", ch), locateError());
 				}
-				throw new JsonException(string.Format("Unexpected '{0}'", ch), locateError());
 			};
 			#endregion
 			Func<object> value = null; //Place holder for the value function.
@@ -408,23 +448,29 @@ namespace Kawa.Json
 						if (ch == ']')
 						{
 							if (!AllowTrailingComma && justHadComma)
+							{
 								throw new JsonException("Superfluous trailing comma", locateError());
+							}
 							expect(ch);
 							return arr; //.ToArray(); //Potentially empty array
 						}
 						//ES5 allows omitting elements in arrays, e.g. [,] and
 						//[,null]. We don't allow this in JSON5.
 						if (ch == ',')
+						{
 							throw new JsonException("Missing array element", locateError());
+						}
 						else
+						{
 							arr.Add(value());
+						}
 						white();
 						//If there's no comma after this value, this needs to
 						//be the end of the array.
 						if (ch != ',')
 						{
 							expect(']');
-							return arr; //.ToArray();
+							return arr;
 						}
 						expect(',');
 						justHadComma = true;
@@ -454,13 +500,19 @@ namespace Kawa.Json
 						//Keys can be unquoted. If they are, they need to be
 						//valid JS identifiers.
 						if (ch == '\"' || ch == '\'')
+						{
 							key = @string();
+						}
 						else
+						{
 							key = identifier();
+						}
 						white();
 						expect(':');
 						if (obj.ContainsKey(key))
+						{
 							throw new JsonException(string.Format("Duplicate key \"{0}\"", key), locateError());
+						}
 						obj[key] = value();
 						white();
 						//If there's no comma after this pair, this needs to be
@@ -501,7 +553,9 @@ namespace Kawa.Json
 						expect('a');
 						expect('N');
 						if (!AllowNaN)
+						{
 							throw new JsonException("Found an unallowed NaN value.");
+						}
 						return double.NaN;
 					case 'I':
 						expect('I');
@@ -513,10 +567,12 @@ namespace Kawa.Json
 						expect('t');
 						expect('y');
 						if (!AllowNaN)
+						{
 							throw new JsonException("Found an unallowed Infinity value.");
+						}
 						return double.PositiveInfinity;
 					default:
-						return ch >= '0' && ch <= '9' ? (object)@number() : (object)word();
+						return ch >= '0' && ch <= '9' ? @number() : word();
 				}
 			};
 			#endregion
@@ -526,15 +582,23 @@ namespace Kawa.Json
 			//so unexpected.
 			//-- KAWA
 			white();
-			var ret = (object)null;
+			object ret;
 			if (ch == '\0')
+			{
 				ret = null;
+			}
 			if (ch == '[')
+			{
 				ret = @array();
+			}
 			else if (ch == '{')
+			{
 				ret = @object();
+			}
 			else
+			{
 				ret = value();
+			}
 
 			System.Threading.Thread.CurrentThread.CurrentCulture = previousCulture;
 			return ret;
@@ -546,7 +610,7 @@ namespace Kawa.Json
 		/// <param name="object">The object to stringify.</param>
 		/// <param name="space">How many spaces to indent each level.</param>
 		/// <returns>A string representation of the input object.</returns>
-		public static string Stringify(this object @object, int space = 2)
+		public static string Stringify(this object @object, int space)
 		{
 			var previousCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -567,17 +631,25 @@ namespace Kawa.Json
 			Func<object, bool> isWord = (key) =>
 			{
 				if (!AllowBareKeys)
+				{
 					return false;
+				}
 				if (!(key is string))
+				{
 					return false;
+				}
 				var k = key as string;
 				if (!isWordStart(k[0]))
+				{
 					return false;
+				}
 				var i = 1;
 				while (i < k.Length)
 				{
 					if (!isWordChar(k[i]))
+					{
 						return false;
+					}
 					i++;
 				}
 				return true;
@@ -588,22 +660,29 @@ namespace Kawa.Json
 			Action<object> checkForCircular = (obj) =>
 			{
 				if (objStack.Contains(obj))
+				{
 					throw new JsonException("Converting circular structure to JSON");
+				}
 			};
 
 			Func<string, int, bool, string> makeIndent = (str, num, noNewLine) =>
 			{
 				if (string.IsNullOrEmpty(str))
+				{
 					return string.Empty;
+				}
+				var myStr = str;
 				// indentation no more than 10 chars
 				if (str.Length > 10)
 				{
-					str = str.Substring(0, 10);
+					myStr = str.Substring(0, 10);
 				}
 
-				var indent = new StringBuilder(noNewLine ? "" : "\n");
+				var indent = new StringBuilder(noNewLine ? string.Empty : "\n");
 				for (var i = 0; i < num; i++)
-					indent.Append(str);
+				{
+					indent.Append(myStr);
+				}
 
 				return indent.ToString();
 			};
@@ -623,52 +702,90 @@ namespace Kawa.Json
 				var singleBuffer = new StringBuilder();
 				var res = string.Empty;
 				if (obj_part == null)
+				{
 					return "null";
+				}
 				if (obj_part is bool)
+				{
 					return obj_part.ToString().ToLowerInvariant();
+				}
 				if (obj_part is double || obj_part is float)
 				{
 					if (!AllowNaN && (double.IsNaN((double)obj_part) || double.IsInfinity((double)obj_part)))
+					{
 						throw new JsonException("Found an unallowed NaN or Infinity value.");
+					}
 					else
+					{
 						return obj_part.ToString();
+					}
 				}
 				if (obj_part is int || obj_part is long)
+				{
 					return obj_part.ToString();
+				}
 				if (obj_part is int[])
+				{
 					return internalStringify(((int[])obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is long[])
+				{
 					return internalStringify(((long[])obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is double[])
+				{
 					return internalStringify(((double[])obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is float[])
+				{
 					return internalStringify(((float[])obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is string[])
+				{
 					return internalStringify(((string[])obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is List<int>)
+				{
 					return internalStringify(((List<int>)obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is List<long>)
+				{
 					return internalStringify(((List<long>)obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is List<double>)
+				{
 					return internalStringify(((List<double>)obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is List<float>)
+				{
 					return internalStringify(((List<float>)obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is List<string>)
+				{
 					return internalStringify(((List<string>)obj_part).Cast<object>().ToList());
+				}
 				if (obj_part is string)
+				{
 					return escapeString(obj_part.ToString());
+				}
 				if (obj_part is object)
 				{
 					if (obj_part is object[])
+					{
 						obj_part = ((object[])obj_part).ToList();
+					}
 					if (obj_part == null)
+					{
 						return "null";
+					}
 					else if (obj_part is List<object>)
 					{
 						checkForCircular(obj_part);
 						var objPartAsArray = obj_part as List<object>;
 						if (objPartAsArray.Count == 0)
+						{
 							return "[]";
+						}
 						buffer.Append('[');
 						singleBuffer.Append('[');
 						objStack.Push(obj_part);
@@ -693,14 +810,18 @@ namespace Kawa.Json
 								singleBuffer.Append(',');
 							}
 							else if (string.IsNullOrEmpty(indentStr))
+							{
 								buffer.Append('\n');
+							}
 						}
 						objStack.Pop();
 						buffer.Append(makeIndent(indentStr, objStack.Count, false));
 						buffer.Append(']');
 						singleBuffer.Append(" ]");
 						if (FoldMode.HasFlag(FoldMode.Arrays) && singleBuffer.Length < 70)
+						{
 							return singleBuffer.ToString();
+						}
 					}
 					else if (obj_part is JsonObj)
 					{
@@ -727,7 +848,9 @@ namespace Kawa.Json
 						if (nonEmpty)
 						{
 							if (FoldMode.HasFlag(FoldMode.Objects) && singleBuffer.Length < 70)
+							{
 								return singleBuffer.ToString().Substring(0, singleBuffer.Length - 1) + " }";
+							}
 							return buffer.ToString().Substring(0, buffer.Length - 1) + makeIndent(indentStr, objStack.Count, false) + '}';
 						}
 						return "{}";
@@ -735,12 +858,24 @@ namespace Kawa.Json
 					return buffer.ToString();
 				}
 				else
+				{
 					return null;
+				}
 			};
 
 			var ret = internalStringify(@object);
 			System.Threading.Thread.CurrentThread.CurrentCulture = previousCulture;
 			return ret;
+		}
+
+		/// <summary>
+		/// Creates a string representation of a JsonObj, list, string, or double that conforms to the JSON or JSON5 standards.
+		/// </summary>
+		/// <param name="object">The object to stringify.</param>
+		/// <returns>A string representation of the input object.</returns>
+		public static string Stringify(this object @object)
+		{
+			return Stringify(@object, 2);
 		}
 	}
 }

@@ -33,7 +33,9 @@ namespace SBCharCreator
 		public override string ToString()
 		{
 			if (this.FromPak)
+			{
 				return string.Format("pak:{0}", this.Name);
+			}
 			return this.Name;
 		}
 
@@ -84,41 +86,55 @@ namespace SBCharCreator
 				}
 				catch (AssetException)
 				{
+					//Yeah whatever.
 				}
 			}
 			if (Directory.Exists(path))
+			{
 				AddAllFrom(path);
+			}
 		}
 
 		public static void AddAllFrom(string path)
 		{
 			var sources = new List<string>();
 			if (File.Exists(Path.Combine(path, ".metadata")) || File.Exists(Path.Combine(path, "_metadata")))
+			{
 				sources.Add(path);
+			}
 			else
 			{
 				foreach (var source in Directory.EnumerateFiles(path, "*.pak", SearchOption.AllDirectories))
+				{
 					sources.Add(source);
+				}
 				foreach (var source in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly))
+				{
 					if (File.Exists(Path.Combine(source, ".metadata")) || File.Exists(Path.Combine(source, "_metadata")))
+					{
 						sources.Add(source);
+					}
+				}
 			}
 			sources.Sort();
 			foreach (var source in sources)
+			{
 				if (source.EndsWith(".pak"))
 				{
 					try
 					{
 						AddPak(source);
 					}
-					catch (AssetException) // aex)
+					catch (AssetException)
 					{
-						//throw new AssetException(string.Format("Error loading {0}: {1}", source.Replace(path, ""), aex.Message));
 						//Okay so we couldn't load this pak for whatever reason. WHAT FUCKING EVER.
 					}
 				}
 				else
+				{
 					AddDirectory(source);
+				}
+			}
 		}
 
 		private static void AddDirectory(string path)
@@ -127,7 +143,9 @@ namespace SBCharCreator
 			{
 				var f = file.Replace(path, string.Empty).Replace(Path.DirectorySeparatorChar, '/');
 				if (f == ".metadata" || f == "_metadata")
+				{
 					continue;
+				}
 				Files.Add(new Asset(file, f));
 			}
 		}
@@ -140,7 +158,9 @@ namespace SBCharCreator
 			pakFile.BaseStream.Seek(indexOffset, SeekOrigin.Begin);
 			var indexHeader = new string(pakFile.ReadChars(5));
 			if (indexHeader != "INDEX")
+			{
 				throw new AssetException("Expected an index.");
+			}
 			var indexItems = pakFile.ReadVLQUnsigned();
 			var index = new Dictionary<string, object>();
 			while (indexItems-- > 0)
@@ -157,7 +177,9 @@ namespace SBCharCreator
 					var intel8 = new[] { moto8[7], moto8[6], moto8[5], moto8[4], moto8[3], moto8[2], moto8[1], moto8[0] };
 					var val = 0.0;
 					using (var intel = new BinaryReader(new MemoryStream(intel8)))
+					{
 						val = intel.ReadDouble();
+					}
 					index[key] = val;
 				}
 				else if (type == 3)
@@ -182,7 +204,9 @@ namespace SBCharCreator
 					{
 						type = pakFile.ReadByte();
 						if (type != 5)
+						{
 							throw new AssetException("Got an array with something other than string values in the pak's metadata. The only arrays in a Starbound asset's metadata should be \"requires\" and \"includes\", which should only take strings.");
+						}
 						var val = pakFile.ReadProperString();
 						array.Add(val);
 					}
@@ -192,9 +216,13 @@ namespace SBCharCreator
 				{
 					//Technically objects are allowed, but it's SO MUCH EASIER to just enforce Proper Metadata.
 					if (key == "metadata")
+					{
 						throw new AssetException("Yo dawg! We heard you like metadata so we put a metadata in your metadata so you can fail while you fail!");
+					}
 					else
+					{
 						throw new AssetException("Found an object (or dictionary if you prefer) in the pak's metadata. There should not be any of those.");
+					}
 				}
 				else
 				{
@@ -214,14 +242,16 @@ namespace SBCharCreator
 		public static Stream Open(string path)
 		{
 			var hit = Files.LastOrDefault(f => f.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
-			if (hit == null) return null;
+			if (hit == null)
+			{
+				return null;
+			}
 			return hit.Open();
 		}
 
 		public static string GetString(string path)
 		{
-			path = path.ToLowerInvariant();
-			using (var file = new StreamReader(Open(path)))
+			using (var file = new StreamReader(Open(path.ToLowerInvariant())))
 			{
 				return file.ReadToEnd();
 			}
@@ -237,13 +267,15 @@ namespace SBCharCreator
 
 		public static object GetJson(string path)
 		{
-			path = path.ToLowerInvariant();
-			if (cache.ContainsKey(path))
-				return cache[path];
-			var ret = Json5.Parse(Assets.GetString(path));
+			var myPath = path.ToLowerInvariant();
+			if (cache.ContainsKey(myPath))
+			{
+				return cache[myPath];
+			}
+			var ret = Json5.Parse(Assets.GetString(myPath));
 			if (ret is Dictionary<string, object>)
 			{
-				var patchPath = path + ".patch";
+				var patchPath = myPath + ".patch";
 				foreach (var file in Assets.Files.Where(f => f.Name == patchPath))
 				{
 					var rawPatch = Assets.GetString(file);
@@ -251,17 +283,19 @@ namespace SBCharCreator
 					Kawa.Json.Patch.JsonPatch.Apply(ret, patch);
 				}
 			}
-			cache.Add(path, ret);
+			cache.Add(myPath, ret);
 			return ret;
 		}
 
 		public static Bitmap GetImage(string path)
 		{
-			path = path.ToLowerInvariant();
 			Bitmap ret = null;
-			using (var stream = Assets.Open(path))
+			using (var stream = Assets.Open(path.ToLowerInvariant()))
 			{
-				if (stream == null) return errorFallback;
+				if (stream == null)
+				{
+					return errorFallback;
+				}
 				ret = new Bitmap(stream);
 			}
 			return ret;
@@ -269,32 +303,34 @@ namespace SBCharCreator
 
 		public static Frames GetFrames(string path)
 		{
-			path = path.ToLowerInvariant();
-			if (framesCache.ContainsKey(path))
-				return framesCache[path];
-			var cachePath = path;
+			var myPath = path.ToLowerInvariant();
+			if (framesCache.ContainsKey(myPath))
+			{
+				return framesCache[myPath];
+			}
+			var cachePath = myPath;
 			Asset hit = null;
-			var originalBaseName = path.Substring(path.LastIndexOf('/') + 1);
-			while (path.Length > 1 && hit == null)
+			var originalBaseName = myPath.Substring(myPath.LastIndexOf('/') + 1);
+			while (myPath.Length > 1 && hit == null)
 			{
 				//First, try the actually asked for path
-				hit = Files.LastOrDefault(f => f.Name == path);
+				hit = Files.LastOrDefault(f => f.Name == myPath);
 				if (hit == null)
 				{
 					//Didn't find it here. Try default.
-					path = path.Substring(0, path.LastIndexOf('/')) + "/default.frames";
-					hit = Files.LastOrDefault(f => f.Name == path);
+					myPath = myPath.Substring(0, myPath.LastIndexOf('/')) + "/default.frames";
+					hit = Files.LastOrDefault(f => f.Name == myPath);
 					if (hit == null)
 					{
-						//Still couldn't find it? Cut out the last bit of path and try again with the original basename.
-						path = path.Substring(0, path.LastIndexOf('/'));
-						path = path.Substring(0, path.LastIndexOf('/')) + "/" + originalBaseName;
+						//Still couldn't find it? Cut out the last bit of myPath and try again with the original basename.
+						myPath = myPath.Substring(0, myPath.LastIndexOf('/'));
+						myPath = myPath.Substring(0, myPath.LastIndexOf('/')) + "/" + originalBaseName;
 					}
 				}
 			}
 			if (hit != null)
 			{
-				var ret = new Frames((JsonObj)GetJson(path));
+				var ret = new Frames((JsonObj)GetJson(myPath));
 				framesCache.Add(cachePath, ret);
 				return ret;
 			}
@@ -308,27 +344,33 @@ namespace SBCharCreator
 		{
 			var moto2 = stream.ReadBytes(2);
 			var intel2 = new[] { moto2[1], moto2[0] };
-			var ret = (UInt16)0;
+			UInt16 ret;
 			using (var intel = new BinaryReader(new MemoryStream(intel2)))
+			{
 				ret = intel.ReadUInt16();
+			}
 			return ret;
 		}
 		public static UInt32 ReadMotoInt32(this BinaryReader stream)
 		{
 			var moto4 = stream.ReadBytes(4);
 			var intel4 = new[] { moto4[3], moto4[2], moto4[1], moto4[0] };
-			var ret = (UInt32)0;
+			UInt32 ret;
 			using (var intel = new BinaryReader(new MemoryStream(intel4)))
+			{
 				ret = intel.ReadUInt32();
+			}
 			return ret;
 		}
 		public static UInt64 ReadMotoInt64(this BinaryReader stream)
 		{
 			var moto8 = stream.ReadBytes(8);
 			var intel8 = new[] { moto8[7], moto8[6], moto8[5], moto8[4], moto8[3], moto8[2], moto8[1], moto8[0] };
-			var ret = (UInt64)0;
+			UInt64 ret;
 			using (var intel = new BinaryReader(new MemoryStream(intel8)))
+			{
 				ret = intel.ReadUInt64();
+			}
 			return ret;
 		}
 		public static ulong ReadVLQUnsigned(this BinaryReader stream)
@@ -337,20 +379,26 @@ namespace SBCharCreator
 			for (var i = 0; i < 10; ++i)
 			{
 				var oct = stream.ReadByte();
-				x = (ulong)(x << 7) | (ulong)((ulong)oct & 127);
+				x = (x << 7) | ((ulong)oct & 127);
 				if ((oct & 128) == 0)
+				{
 					return x;
+				}
 			}
-			throw new Exception("fucked up");
+			throw new AssetException("Couldn't read a VLQ number.");
 		}
 		public static long ReadVLQSigned(this BinaryReader stream)
 		{
 			ulong source = ReadVLQUnsigned(stream);
 			bool negative = (source & 1) == 1;
 			if (negative)
+			{
 				return -(long)(source >> 1) - 1;
+			}
 			else
+			{
 				return (long)(source >> 1);
+			}
 		}
 		public static string ReadProperString(this BinaryReader stream)
 		{

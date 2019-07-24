@@ -14,14 +14,13 @@ namespace SBCharCreator
 	public partial class charCreatorForm : Form
 	{
 		private Dictionary<string, Clothing> clothing;
-		private List<Species> species;
-		private bool drawLock = false;
-		private System.ComponentModel.BackgroundWorker loader;
-		private bool stopLoadingAsshole = false;
+		private readonly List<Species> species;
+		private bool drawLock;
+		private readonly System.ComponentModel.BackgroundWorker loader;
+		private bool stopLoadingDipshit;
 		public static string SavePath { get; private set; }
 
-		private JsonObj editPlayer = null;
-		private Clothing hat = null;
+		private JsonObj editPlayer;
 
 		private static ToolStripStatusLabel statusLabel;
 		public static void SetStatus(string text)
@@ -59,15 +58,6 @@ namespace SBCharCreator
 				return;
 			}
 
-			/*
-			Assets.AddSource(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound\assets\packed.pak");
-			Assets.AddSource(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound - Unstable\_assets");
-			Assets.AddAllFrom(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound - Unstable\mods");
-			Assets.AddSource(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound - Unstable\mods\felins");
-			Assets.AddSource(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound - Unstable\mods\felins_costumes");
-			Assets.AddSource(@"C:\Program Files (x86)\Steam\SteamApps\common\Starbound - Unstable\mods\felins_furplus");
-			*/
-
 			species = new List<Species>();
 
 			var fuckedUp = false;
@@ -87,13 +77,14 @@ namespace SBCharCreator
 				loadLabel.Image = loadingFrame;
 				loadingIndex++;
 				if (loadingIndex == 30)
+				{
 					loadingIndex = 0;
+				}
 				loadLabel.Refresh();
 			};
 			loadingTimer.Start();
 
 			loader.ProgressChanged += (snd, e) => {
-				//loadLabel.Text = string.Format("Loading...\n{1}", e.ProgressPercentage, (string)e.UserState);
 				statusLabel.Text = string.Format("Loading {0}...", (string)e.UserState);
 			};
 			loader.DoWork += (snd, e) => {
@@ -112,7 +103,7 @@ namespace SBCharCreator
 					return;
 				}
 
-				if (stopLoadingAsshole) return;
+				if (stopLoadingDipshit) return;
 
 				Humanoid.Load((JsonObj)Assets.GetJson("/humanoid.config"));
 				var charCreator = (JsonObj)Assets.GetJson("/interface/windowconfig/charcreation.config");
@@ -128,7 +119,7 @@ namespace SBCharCreator
 
 				foreach (var s in speciesOrdering)
 				{
-					if (stopLoadingAsshole) return;
+					if (stopLoadingDipshit) return;
 					loader.ReportProgress((int)(((float)i / (float)totalShit) * 100), s);
 					i++;
 					var newSpecies = new Species((JsonObj)Assets.GetJson("/species/" + s + ".species"));
@@ -178,22 +169,27 @@ namespace SBCharCreator
 				clothing.Add("emptylegs", null);
 				foreach (var file in clothingFiles)
 				{
-					if (stopLoadingAsshole) return;
+					if (stopLoadingDipshit)
+					{
+						return;
+					}
 					loader.ReportProgress((int)(((float)i / (float)totalShit) * 100), Path.GetFileName(file.Name));
 					i++;
 					var newClothing = new Clothing((JsonObj)Assets.GetJson(file.Name), file.Name);
 					if (clothing.ContainsKey(newClothing.ItemName))
+					{
 						continue;
+					}
 					clothing.Add(newClothing.ItemName, newClothing);
 				}
 			};
 			loader.RunWorkerAsync();
 			this.FormClosing += (s, e) =>
 			{
-				if (loader.IsBusy && !stopLoadingAsshole)
+				if (loader.IsBusy && !stopLoadingDipshit)
 				{
 					loadLabel.Text = "Woah!";
-					stopLoadingAsshole = true;
+					stopLoadingDipshit = true;
 					e.Cancel = true;
 				}
 			};
@@ -202,16 +198,11 @@ namespace SBCharCreator
 			{
 				Application.DoEvents();
 			}
-			if (fuckedUp || stopLoadingAsshole)
+			if (fuckedUp || stopLoadingDipshit)
 			{
 				this.Close();
 				return;
 			}
-
-			/*
-			hat = new Clothing((JsonObj)Assets.GetJson("/items/armors/decorative/hats/georgedev/georgedev.head"), "/items/armors/decorative/hats/georgedev/georgedev.head");
-			hat.Finish();
-			*/
 
 			drawLock = true;
 			Refresh();
@@ -220,7 +211,9 @@ namespace SBCharCreator
 			var r = new Random();
 			speciesListbox.SelectedIndex = r.Next(speciesListbox.Items.Count);
 			if (r.NextDouble() > 0.5)
+			{
 				femaleGenderRadioButton.Checked = true;
+			}
 			randomizeButton_Click(null, null);
 			loadLabel.Hide();
 			identityPanel.Visible = true;
@@ -251,12 +244,12 @@ namespace SBCharCreator
 
 		private void speciesListbox_DrawItem(object sender, DrawItemEventArgs e)
 		{
-			var species = speciesListbox.Items[e.Index] as Species;
+			var theSpecies = speciesListbox.Items[e.Index] as Species;
 			var g = e.Graphics;
 			e.DrawBackground();
-			g.DrawImage(species.Genders[1].CharacterImage, e.Bounds.Left + 14, e.Bounds.Top, 25, 24);
-			g.DrawImage(species.Genders[0].CharacterImage, e.Bounds.Left, e.Bounds.Top, 25, 24);
-			g.DrawString(species.Name, speciesListbox.Font, e.State == DrawItemState.Selected ? SystemBrushes.HighlightText : (species.Parts == null ? SystemBrushes.GrayText : SystemBrushes.ControlText), e.Bounds.Left + 40, e.Bounds.Top + 8);
+			g.DrawImage(theSpecies.Genders[1].CharacterImage, e.Bounds.Left + 14, e.Bounds.Top, 25, 24);
+			g.DrawImage(theSpecies.Genders[0].CharacterImage, e.Bounds.Left, e.Bounds.Top, 25, 24);
+			g.DrawString(theSpecies.Name, speciesListbox.Font, e.State == DrawItemState.Selected ? SystemBrushes.HighlightText : (theSpecies.Parts == null ? SystemBrushes.GrayText : SystemBrushes.ControlText), e.Bounds.Left + 40, e.Bounds.Top + 8);
 			e.DrawFocusRectangle();
 		}
 
@@ -273,47 +266,68 @@ namespace SBCharCreator
 
 			var species = (Species)speciesListbox.SelectedItem;
 			species.Finish();
-			speciesListbox.Refresh();
-			var gender = species.Genders[maleGenderRadioButton.Checked ? 0 : 1];
+			speciesListbox.Refresh();			
 
 			var labels = new[] { bodyLabel, hairLabel, chestLabel, legsLabel, undyLabel, headLabel, chestColorLabel, legsColorLabel };
 			for (var i = 0; i < 8; i++)
+			{
 				labels[i].Text = species.CharGenTextLabels[i];
+			}
 			personalityLabel.Text = species.CharGenTextLabels[9];
 
 			var colorCombos = new[] { bodyColorComboBox, undyColorComboBox, hairColorComboBox };
 			for (var i = 0; i < colorCombos.Length; i++)
+			{
 				colorCombos[i].Items.Clear();
+			}
 
 			if (oldBodyColor < 0)
+			{
 				oldBodyColor = 0;
+			}
 			bodyColorComboBox.Tag = species.BodyColor;
 			bodyColorComboBox.Items.AddRange(species.BodyColor);
 			if (oldBodyColor < bodyColorComboBox.Items.Count)
+			{
 				bodyColorComboBox.SelectedIndex = oldBodyColor;
+			}
 			else
+			{
 				bodyColorComboBox.SelectedIndex = 0;
+			}
 
 			if (oldUndyColor < 0)
+			{
 				oldUndyColor = 0;
+			}
 			undyColorComboBox.Tag = species.UndyColor;
 			undyColorComboBox.Items.AddRange(species.UndyColor);
 			if (oldUndyColor < undyColorComboBox.Items.Count)
+			{
 				undyColorComboBox.SelectedIndex = oldUndyColor;
+			}
 			else
+			{
 				undyColorComboBox.SelectedIndex = 0;
+			}
 			undyColorComboBox.Visible = species.AltOptionAsUndyColor && !string.IsNullOrEmpty(species.CharGenTextLabels[4]);
 			undyOptionComboBox.Visible = !species.AltOptionAsUndyColor && !string.IsNullOrEmpty(species.CharGenTextLabels[4]);
 			undyCheckBox.Visible = undyColorComboBox.Visible || undyOptionComboBox.Visible;
 
 			if (oldHairColor < 0)
+			{
 				oldHairColor = 0;
+			}
 			hairColorComboBox.Tag = species.HairColor;
 			hairColorComboBox.Items.AddRange(species.HairColor);
 			if (oldHairColor < hairColorComboBox.Items.Count)
+			{
 				hairColorComboBox.SelectedIndex = oldHairColor;
+			}
 			else
+			{
 				hairColorComboBox.SelectedIndex = 0;
+			}
 			hairColorComboBox.Visible = !species.HeadOptionAsFacialhair && !string.IsNullOrEmpty(species.CharGenTextLabels[5]);
 
 			headOptionComboBox.Visible = species.HeadOptionAsFacialhair && !string.IsNullOrEmpty(species.CharGenTextLabels[5]);
@@ -326,9 +340,14 @@ namespace SBCharCreator
 			Cursor = Cursors.Default;
 			identityPanel.Show();
 			if (!this.Enabled)
+			{
 				return;
+			}
 
-			if (string.IsNullOrWhiteSpace(nameTextBox.Text)) randomNameButton_Click(null, null);
+			if (string.IsNullOrWhiteSpace(nameTextBox.Text))
+			{
+				randomNameButton_Click(null, null);
+			}
 
 			RenderCharacter();
 		}
@@ -337,7 +356,6 @@ namespace SBCharCreator
 		{
 			identityPanel.Hide();
 
-			//SetStatus("1");
 			var oldHairOption = hairOptionComboBox.SelectedIndex;
 			var oldUndyOption = undyOptionComboBox.SelectedIndex;
 			var oldHeadOption = headOptionComboBox.SelectedIndex;
@@ -346,51 +364,68 @@ namespace SBCharCreator
 			var oldChestColor = chestColorComboBox.SelectedIndex;
 			var oldLegsColor = legsColorComboBox.SelectedIndex;
 			if (oldChestColor < 0)
+			{
 				oldChestColor = 0;
+			}
 			if (oldLegsColor < 0)
+			{
 				oldLegsColor = 0;
+			}
 
 			var species = (Species)speciesListbox.SelectedItem;
 			var gender = species.Genders[maleGenderRadioButton.Checked ? 0 : 1];
 
-			//SetStatus("2");
 			if (oldHairOption < 0)
+			{
 				oldHairOption = 0;
+			}
 			hairOptionComboBox.Items.Clear();
 			hairOptionComboBox.Items.AddRange(gender.Hair.Keys.ToArray());
-			//SetStatus("3");
 			if (oldHairOption < hairOptionComboBox.Items.Count)
+			{
 				hairOptionComboBox.SelectedIndex = oldHairOption;
+			}
 			else
+			{
 				hairOptionComboBox.SelectedIndex = 0;
+			}
 
-			//SetStatus("4");
 			if (species.AltOptionAsFacialMask)
 			{
 				if (oldUndyOption < 0)
+				{
 					oldUndyOption = 0;
+				}
 				undyOptionComboBox.Items.Clear();
 				undyOptionComboBox.Items.AddRange(gender.FacialMask.Keys.ToArray());
 				if (oldUndyOption < undyOptionComboBox.Items.Count)
+				{
 					undyOptionComboBox.SelectedIndex = oldUndyOption;
+				}
 				else
+				{
 					undyOptionComboBox.SelectedIndex = 0;
+				}
 			}
 
-			//SetStatus("5");
 			if (species.HeadOptionAsFacialhair)
 			{
 				if (oldHeadOption < 0)
+				{
 					oldHeadOption = 0;
+				}
 				headOptionComboBox.Items.Clear();
 				headOptionComboBox.Items.AddRange(gender.FacialHair.Keys.ToArray());
 				if (oldHeadOption < headOptionComboBox.Items.Count)
+				{
 					headOptionComboBox.SelectedIndex = oldHeadOption;
+				}
 				else
+				{
 					headOptionComboBox.SelectedIndex = 0;
+				}
 			}
 
-			//SetStatus("6");
 			chestComboBox.Items.Clear();
 			legsComboBox.Items.Clear();
 			if (allowAllClothingCheckBox.Checked)
@@ -404,22 +439,31 @@ namespace SBCharCreator
 				legsComboBox.Items.AddRange(gender.Pants.Where(c => clothing.ContainsKey(c)).ToArray());
 			}
 			if (chestComboBox.Items.Count == 0)
+			{
 				chestComboBox.Items.Add("emptychest");
+			}
 			if (legsComboBox.Items.Count == 0)
+			{
 				legsComboBox.Items.Add("emptylegs");
+			}
 
-			//SetStatus("7");
 			if (oldChest != null && chestComboBox.Items.Contains(oldChest))
+			{
 				chestComboBox.SelectedItem = oldChest;
+			}
 			else
+			{
 				chestComboBox.SelectedIndex = 0;
-			//SetStatus("8");
+			}
 			if (oldLegs != null && legsComboBox.Items.Contains(oldLegs))
+			{
 				legsComboBox.SelectedItem = oldLegs;
+			}
 			else
+			{
 				legsComboBox.SelectedIndex = 0;
+			}
 
-			//SetStatus("9");
 			var itemName = (string)(chestComboBox.SelectedItem ?? (string)chestComboBox.Items[0]);
 			var chest = clothing.ContainsKey(itemName) ? clothing[itemName] : null;
 			if (chest != null)
@@ -428,9 +472,10 @@ namespace SBCharCreator
 				chestColorComboBox.Items.Clear();
 				chestColorComboBox.Tag = chest.ColorOptions;
 				chestColorComboBox.Items.AddRange(chest.ColorOptions);
-				//SetStatus("10");
 				if (oldChestColor >= chest.ColorOptions.Length)
+				{
 					oldChestColor = 0;
+				}
 				chestColorComboBox.SelectedIndex = oldChestColor;
 			}
 			itemName = (string)(legsComboBox.SelectedItem ?? (string)legsComboBox.Items[0]);
@@ -438,17 +483,16 @@ namespace SBCharCreator
 			if (legs != null)
 			{
 				legs.Finish();
-				//SetStatus("11");
 				legsColorComboBox.Items.Clear();
 				legsColorComboBox.Tag = legs.ColorOptions;
 				legsColorComboBox.Items.AddRange(legs.ColorOptions);
 				if (oldLegsColor >= legs.ColorOptions.Length)
+				{
 					oldLegsColor = 0;
-				//SetStatus("12");
+				}
 				legsColorComboBox.SelectedIndex = oldLegsColor;
 			}
 
-			//SetStatus("13");
 			identityPanel.Show();
 		}
 
@@ -614,7 +658,7 @@ namespace SBCharCreator
 			if (species.AltOptionAsHairColor)
 				hairColorB = species.UndyColor[undyColor];
 			var hair = gender.Hair.ElementAt(hairIndex);
-			Draw(canvas, hair.Value, gender.HairFrames[hair.Key], "normal", hairColorA, hairColorB, headOffset[0], headOffset[1], previewWithClothesToolStripButton.Checked ? hat : null);
+			Draw(canvas, hair.Value, gender.HairFrames[hair.Key], "normal", hairColorA, hairColorB, headOffset[0], headOffset[1], null);
 			if (species.HeadOptionAsFacialhair)
 			{
 				var facialHair = gender.FacialHair.ElementAt(headOptionComboBox.SelectedIndex);
@@ -625,8 +669,6 @@ namespace SBCharCreator
 				var facialMask = gender.FacialMask.ElementAt(undyOptionComboBox.SelectedIndex);
 				Draw(canvas, facialMask.Value, gender.FacialMaskFrames[facialMask.Key], "normal", hairColorA, hairColorB, headOffset[0], headOffset[1]);
 			}
-			if (previewWithClothesToolStripButton.Checked && hat != null)
-				Draw(canvas, hat.Parts[genderName + "Frames"], hat.PartFrames[genderName + "Frames"], "normal", hat.ColorOptions[0], null, headOffset[0], headOffset[1]);
 
 			Draw(canvas, species.Parts[genderName + "body"], species.PartFrames[genderName + "body"], (string)personality[0], species.BodyColor[bodyColor], species.UndyColor[undyColor], species.HairColor[hairColor], 0, 0);
 			if (previewWithClothesToolStripButton.Checked)
